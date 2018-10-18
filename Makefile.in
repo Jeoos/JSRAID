@@ -1,0 +1,31 @@
+# 
+# Makefile.in for the kernel software
+# 
+# Contact: JeCortex@yahoo.com
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+top_builddir = @top_builddir@
+abs_top_builddir = @abs_top_builddir@
+abs_top_srcdir = @abs_top_srcdir@
+
+SUBDIRS = src/tools/lbd src/lib
+
+ifeq ($(MAKECMDGOALS),distclean)
+	SUBDIRS = src/tools/lbd src/lib
+endif
+
+DISTCLEAN_TARGETS += config.log config.status make.tmpl
+CLEAN_DIRS += autom4te.cache
+
+include make.build
+
+src/tools/lbd: src/lib
+
+src/tools/lbd.jsraid: src/lib.jsraid

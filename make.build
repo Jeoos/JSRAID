@@ -1,0 +1,103 @@
+# 
+# make.build.in for the kernel software
+# 
+# Contact: JeCortex@yahoo.com
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+
+ifeq ($(V),1)
+	Q=
+else
+	Q=@
+endif
+
+SHELL = /bin/sh
+
+
+
+CC ?= gcc
+
+ifeq ($(CC), cc)
+  CC = gcc
+endif
+
+MKDIR_P = /usr/bin/mkdir -p
+SED = /usr/bin/sed
+AWK = gawk
+CHMOD = /usr/bin/chmod
+EGREP = /usr/bin/grep -E
+GREP = /usr/bin/grep
+SORT = /usr/bin/sort
+WC = /usr/bin/wc
+AR = ar
+RM = rm -f
+
+CFLAGS ?= -O2 
+LDFLAGS ?= 
+CLDFLAGS +=  -Wl,--version-script,.export.sym
+ELDFLAGS += -Wl,--export-dynamic
+LDDEPS +=  .export.sym
+
+# Setup directory variables
+prefix = /usr
+
+# Setup vpath search paths for some suffixes
+vpath %.c $(srcdir)
+vpath %.in $(srcdir)
+
+.SUFFIXES:
+.SUFFIXES: .c .o .so .a
+
+SUBDIRS.jsraid := $(SUBDIRS:=.jsraid)
+SUBDIRS.clean := $(SUBDIRS:=.clean)
+SUBDIRS.distclean := $(SUBDIRS:=.distclean)
+
+OBJECTS = $(SOURCES:%.c=%.o)
+
+INCLUDES += -I$(srcdir) -I$(top_builddir)/src/include
+
+TARGETS += $(LIB_SHARED) $(LIB_STATIC) $(OBJECTS)
+
+all: $(SUBDIRS) $(TARGETS)
+
+$(SUBDIRS): $(SUBDIRS.jsraid)
+	$(MAKE) -C $(@)
+
+$(SUBDIRS.jsraid):
+	$(MAKE) -C $(@:.jsraid=) jsraid
+
+%.o: %.c
+	@echo "    [CC] $<"
+	$(Q) $(CC) -c $(INCLUDES) $(CFLAGS) $< -o $@
+
+$(LIB_STATIC): $(OBJECTS)
+	@echo "    [AR] $@"
+	$(Q) $(RM) $@
+	$(Q) $(AR) rsv $@ $(OBJECTS) > /dev/null
+
+$(SUBDIRS.clean):
+	-$(MAKE) -C $(@:.clean=) clean
+
+$(SUBDIRS.distclean):
+	-$(MAKE) -C $(@:.distclean=) distclean
+
+cleandir:
+ifneq (,$(firstword $(CLEAN_DIRS)))
+	$(RM) -r $(CLEAN_DIRS)
+endif
+	$(RM) $(OBJECTS) $(TARGETS) 
+
+clean: $(SUBDIRS.clean) cleandir
+
+distclean: cleandir $(SUBDIRS.distclean)
+ifneq (,$(firstword $(DISTCLEAN_DIRS)))
+	$(RM) -r $(DISTCLEAN_DIRS)
+endif
+	$(RM) $(DISTCLEAN_TARGETS) Makefile
+
+.PHONY: all distclean clean cleandir jsraid
+.PHONY: $(SUBDIRS) $(SUBDIRS.jsraid) $(SUBDIRS.clean) $(SUBDIRS.distclean)

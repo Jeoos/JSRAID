@@ -1,0 +1,3 @@
+TODO:
+    1. wanna use lbd to access storage, maybe a local block device client of jsraid
+    2. thus a userspace lbd utility needed, corresponding to the kernel lbd
