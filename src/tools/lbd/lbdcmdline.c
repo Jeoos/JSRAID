@@ -21,11 +21,12 @@ struct command commands[COMMAND_COUNT];
 
 static struct cmdline_context _cmdline;
 
-/*
+extern struct command_name command_names[MAX_COMMAND_NAMES];
+
 static const struct command_function _command_functions[CMD_COUNT] = {
 
 };
-*/
+
 
 static const char *last_path_component(char const *name)
 {
@@ -71,12 +72,12 @@ static const struct command_function *_find_command_id_function(int command_enum
 
 	if (!command_enum)
 		return NULL;
-/*
+
 	for (i = 0; i < CMD_COUNT; i++) {
 		if (_command_functions[i].command_enum == command_enum)
 			return &_command_functions[i];
 	}
-*/
+
 	return NULL;
 }
 
@@ -93,7 +94,7 @@ int lbd_register_commands(struct cmd_context *cmd, const char *run_name)
         if(!define_commands(cmd, run_name)) {
                 return 0;
         }
-/*
+
 	_cmdline.commands = commands;
 	_cmdline.num_commands = COMMAND_COUNT;
 
@@ -110,7 +111,7 @@ int lbd_register_commands(struct cmd_context *cmd, const char *run_name)
 
 	_cmdline.command_names = command_names;
 	_cmdline.num_command_names = 0;
-*/
+
 
         return 1;
 }

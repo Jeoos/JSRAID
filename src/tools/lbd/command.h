@@ -16,12 +16,23 @@ struct cmd_context;
 #define COMMAND_COUNT 161
 #define CMD_COUNT 130
 
+#define MAX_COMMAND_NAMES 64
+
+typedef int (*command_id_fn) (struct cmd_context *cmd, int argc, char **argv);
+
+struct command_function {
+	int command_enum;
+	command_id_fn fn;
+};
+
 struct command_name {
 
 };
 
 struct command {
-
+	const char *command_id; /* ID string in command-lines.in */
+	int command_enum; /* <command_id>_CMD */
+	const struct command_function *functions;
 };
 
 struct opt_name {
