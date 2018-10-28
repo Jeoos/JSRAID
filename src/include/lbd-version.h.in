@@ -1,5 +1,5 @@
 /*
- * command.c
+ * lbd-version.h.in
  *
  * Contact: JeCortex@yahoo.com
  *
@@ -9,10 +9,12 @@
  * GNU General Public License for more details.
  */
 
-#include <stdio.h>
-#include "../include/tools.h"
+#ifndef __LBD_VERSION_H__
+#define __LBD_VERSION_H__
 
-void do_method(void)
-{
-        printf("do method ...\n");
-}
+#define LBD_VERSION @LBD_VERSION@
+#define LBD_MAJOR @LBD_MAJOR@
+#define LBD_MINOR @LBD_MINOR@
+#define LBD_PATCHLEVEL @LBD_PATCHLEVEL@
+
+#endif

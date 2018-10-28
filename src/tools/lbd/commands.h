@@ -13,6 +13,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-xx(lbd,
-   "Display and manipulate configuration information",
+xx(version,
+   "Display software and driver version information",
    PERMITTED_READ_ONLY | NO_METADATA_PROCESSING)

@@ -1,5 +1,5 @@
 /*
- * lbdcmdline.h for the kernel software
+ * lbdcmdline.h
  *
  * Contact: JeCortex@yahoo.com
  *

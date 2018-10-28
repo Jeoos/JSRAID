@@ -1,5 +1,5 @@
 /*
- * tools.h for the kernel software
+ * tools.h
  *
  * Contact: JeCortex@yahoo.com
  *

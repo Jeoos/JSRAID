@@ -1,5 +1,5 @@
 # 
-# configure.ac for the kernel software
+# configure.ac
 # 
 # Contact: JeCortex@yahoo.com
 # 
@@ -28,7 +28,7 @@ dnl -- Get system type
 
 AC_CANONICAL_TARGET([])
 
-AS_IF([test -z "$CFLAGS"], [COPTIMISE_FLAG="-O2"])
+AS_IF([test -z "$CFLAGS"], [COPTIMISE_FLAG="-O2 -g"])
 
 CLDFLAGS="$CLDFLAGS -Wl,--version-script,.export.sym"
 # equivalent to -rdynamic
@@ -71,6 +71,8 @@ AC_C_INLINE
 
 AC_STRUCT_TM
 
+AC_TYPE_UINT32_T
+
 ################################################################################
 dnl -- Check for functions.
 
@@ -82,6 +84,15 @@ dnl -- Prefix is /usr by default.
 AC_PREFIX_DEFAULT(/usr)
 
 ################################################################################
+dnl Version define
+read VER < "$srcdir"/VERSION 2>/dev/null || VER=Unknown
+LBD_VERSION=\"$VER\"
+LBD_RELEASE_DATE="\"`echo $VER | $SED 's/.* (//;s/).*//'`\""
+LBD_MAJOR=`echo "$VER" | $AWK -F '.' '{print $1}'`
+LBD_MINOR=`echo "$VER" | $AWK -F '.' '{print $2}'`
+LBD_PATCHLEVEL=`echo "$VER" | $AWK -F '[[(.]]' '{print $3}'`
+
+################################################################################
 dnl -- Vaules export.
 
 AC_SUBST(CFLAGS)
@@ -91,6 +102,10 @@ AC_SUBST(CLDFLAGS)
 AC_SUBST(ELDFLAGS)
 AC_SUBST(LDDEPS)
 AC_SUBST(LIB_SUFFIX)
+AC_SUBST(LBD_VERSION)
+AC_SUBST(LBD_MAJOR)
+AC_SUBST(LBD_MINOR)
+AC_SUBST(LBD_PATCHLEVEL)
 
 ################################################################################
 dnl -- Transform 
@@ -98,6 +113,7 @@ AC_CONFIG_FILES([
 Makefile
 src/lib/Makefile
 src/tools/lbd/Makefile
+src/include/lbd-version.h
 make.build
 ])
 AC_OUTPUT

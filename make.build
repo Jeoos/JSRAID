@@ -1,5 +1,5 @@
 # 
-# make.build.in for the kernel software
+# make.build.in
 # 
 # Contact: JeCortex@yahoo.com
 # 
@@ -36,7 +36,7 @@ WC = /usr/bin/wc
 AR = ar
 RM = rm -f
 
-CFLAGS ?= -O2 
+CFLAGS ?= -O2 -g 
 LDFLAGS ?= 
 CLDFLAGS +=  -Wl,--version-script,.export.sym
 ELDFLAGS += -Wl,--export-dynamic

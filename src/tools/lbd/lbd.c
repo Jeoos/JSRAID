@@ -1,6 +1,4 @@
 /*
- * lbd.c for the kernel software
- *
  * Contact: JeCortex@yahoo.com
  *
  * This program is distributed in the hope that it will be useful,

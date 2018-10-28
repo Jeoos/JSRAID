@@ -1,5 +1,5 @@
 /*
- * command.c
+ * commom.h
  *
  * Contact: JeCortex@yahoo.com
  *
@@ -9,10 +9,22 @@
  * GNU General Public License for more details.
  */
 
-#include <stdio.h>
-#include "../include/tools.h"
+ #ifndef __COMMOM_H__
+ #define __COMMOM_H__
 
-void do_method(void)
-{
-        printf("do method ...\n");
-}
+enum {
+#define cmd(a, b) a ,
+#include "cmds.h"
+#undef cmd
+};
+
+struct arg_values {
+	unsigned count;
+	char *value;
+	int32_t i_value;
+	uint32_t ui_value;
+	int64_t i64_value;
+	uint64_t ui64_value;
+};
+
+#endif

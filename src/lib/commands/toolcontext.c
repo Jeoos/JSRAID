@@ -1,5 +1,5 @@
 /*
- * toolcontext.c for the kernel software
+ * toolcontext.c
  *
  * Contact: JeCortex@yahoo.com
  *
@@ -9,10 +9,17 @@
  * GNU General Public License for more details.
  */
 #include <stdio.h>
+#include <malloc.h>
+#include "../../include/toolcontext.h"
 
 struct cmd_context *create_toolcontext(unsigned set_connections, unsigned set_filters)
 {
-        struct cmd_context *cmd = NULL;
+        struct cmd_context *cmd;
+
+	if (!(cmd = malloc(sizeof(*cmd)))) {
+		printf("Failed to allocate command context");
+		return NULL;
+	}
 
         return cmd;
 }

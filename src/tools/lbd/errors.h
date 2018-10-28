@@ -1,5 +1,5 @@
 /*
- * errors.h for the kernel software
+ * errors.h
  *
  * Contact: JeCortex@yahoo.com
  *

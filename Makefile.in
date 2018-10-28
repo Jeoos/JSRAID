@@ -1,5 +1,5 @@
 # 
-# Makefile.in for the kernel software
+# Makefile.in
 # 
 # Contact: JeCortex@yahoo.com
 # 
@@ -21,7 +21,10 @@ ifeq ($(MAKECMDGOALS),distclean)
 	SUBDIRS = src/tools/lbd src/lib
 endif
 
-DISTCLEAN_TARGETS += config.log config.status make.tmpl
+DISTCLEAN_TARGETS += config.log config.status make.tmpl \
+		     src/include/configure.h \
+		     src/include/lbd-version.h
+
 CLEAN_DIRS += autom4te.cache
 
 include make.build

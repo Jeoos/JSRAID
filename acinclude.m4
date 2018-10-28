@@ -1,5 +1,5 @@
 dnl
-dnl acinclude.m4 for the kernel software
+dnl acinclude.m4
 dnl 
 dnl Contact: JeCortex@yahoo.com
 dnl 

@@ -1,5 +1,5 @@
 /*
- * toolcontext.h for the kernel software
+ * toolcontext.h
  *
  * Contact: JeCortex@yahoo.com
  *
@@ -16,6 +16,10 @@ struct cmd_context {
 
         const char *cmd_line;
 	const char *name;  /* needed before cmd->command is set */
+	struct command_name *cname;
+	struct command *command;
+
+	char **argv;
 };
 
 struct cmd_context *create_toolcontext(unsigned set_connections, unsigned set_filters);

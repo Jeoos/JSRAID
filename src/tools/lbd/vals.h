@@ -1,5 +1,5 @@
 /*
- * command.c
+ * vals.h
  *
  * Contact: JeCortex@yahoo.com
  *
@@ -9,10 +9,8 @@
  * GNU General Public License for more details.
  */
 
-#include <stdio.h>
-#include "../include/tools.h"
+val(none_VAL, NULL, "None", "ERR")             /* unused, for enum value 0 */
+val(psizemb_VAL, psize_mb_arg, "PSizeMB", "[+]Size[m|UNIT]")
+val(sizemb_VAL, size_mb_arg, "SizeMB", "Size[m|UNIT]")
+val(VAL_COUNT, NULL, NULL, NULL)
 
-void do_method(void)
-{
-        printf("do method ...\n");
-}
