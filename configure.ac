@@ -112,6 +112,7 @@ dnl -- Transform
 AC_CONFIG_FILES([
 Makefile
 src/lib/Makefile
+src/libjraid/Makefile
 src/tools/lbd/Makefile
 src/include/lbd-version.h
 make.build

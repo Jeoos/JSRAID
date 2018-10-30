@@ -4960,7 +4960,7 @@ LBD_PATCHLEVEL=`echo "$VER" | $AWK -F '[(.]' '{print $3}'`
 
 
 ################################################################################
-ac_config_files="$ac_config_files Makefile src/lib/Makefile src/tools/lbd/Makefile src/include/lbd-version.h make.build"
+ac_config_files="$ac_config_files Makefile src/lib/Makefile src/libjraid/Makefile src/tools/lbd/Makefile src/include/lbd-version.h make.build"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -5656,6 +5656,7 @@ do
     "src/include/configure.h") CONFIG_HEADERS="$CONFIG_HEADERS src/include/configure.h" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "src/lib/Makefile") CONFIG_FILES="$CONFIG_FILES src/lib/Makefile" ;;
+    "src/libjraid/Makefile") CONFIG_FILES="$CONFIG_FILES src/libjraid/Makefile" ;;
     "src/tools/lbd/Makefile") CONFIG_FILES="$CONFIG_FILES src/tools/lbd/Makefile" ;;
     "src/include/lbd-version.h") CONFIG_FILES="$CONFIG_FILES src/include/lbd-version.h" ;;
     "make.build") CONFIG_FILES="$CONFIG_FILES make.build" ;;

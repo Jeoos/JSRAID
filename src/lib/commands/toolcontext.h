@@ -13,6 +13,11 @@
 #define __LBD_TOOLCONTEXT_H__
 
 struct cmd_context {
+	/*
+	 * Memory handlers.
+	 */
+	struct jd_pool *libmem;
+	struct jd_pool *mem;
 
         const char *cmd_line;
 	const char *name;  /* needed before cmd->command is set */

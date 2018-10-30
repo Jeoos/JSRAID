@@ -30,7 +30,7 @@ DISTCLEAN_TARGETS += $(GENTARGETS)
 
 include $(top_builddir)/make.build
 
-lbd: $(OBJECTS) $(top_srcdir)/src/lib/libjsraid.a
+lbd: $(OBJECTS) $(top_srcdir)/src/lib/liblbd-base.a $(top_srcdir)/src/libjraid/libjsraid.so
 	$(Q) $(CC) $(CFLAGS) $(LDFLAGS) $(ELDFLAGS) -o $@ $^
 
 command-count.h: $(srcdir)/command-lines.in

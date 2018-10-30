@@ -1,5 +1,5 @@
 /*
- * vals.h
+ * dstruct.h
  *
  * Contact: JeCortex@yahoo.com
  *
@@ -8,8 +8,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  */
+#ifndef __DSTRUCT_H__
+#define __DSTRUCT_H__
 
-val(none_VAL, NULL, "None", "ERR")             /* unused, for enum value 0 */
-val(psizemb_VAL, psize_mb_arg, "PSizeMB", "[+]Size[m|UNIT]")
-val(sizemb_VAL, size_mb_arg, "SizeMB", "Size[m|UNIT]")
-val(VAL_COUNT, NULL, NULL, NULL)
+void jd_list_init(struct jd_list *head);
+void jd_list_add(struct jd_list *head, struct jd_list *elem);
+void jd_list_del(struct jd_list *elem);
+
+#endif

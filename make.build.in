@@ -41,6 +41,7 @@ LDFLAGS ?= @LDFLAGS@
 CLDFLAGS += @CLDFLAGS@
 ELDFLAGS += @ELDFLAGS@
 LDDEPS += @LDDEPS@
+LIB_SUFFIX = @LIB_SUFFIX@
 
 # Setup directory variables
 prefix = @prefix@
@@ -58,6 +59,7 @@ SUBDIRS.distclean := $(SUBDIRS:=.distclean)
 
 OBJECTS = $(SOURCES:%.c=%.o)
 
+CFLAGS += -fPIC
 INCLUDES += -I$(srcdir) -I$(top_builddir)/src/include
 
 TARGETS += $(LIB_SHARED) $(LIB_STATIC) $(OBJECTS)
@@ -73,6 +75,11 @@ $(SUBDIRS.jsraid):
 %.o: %.c
 	@echo "    [CC] $<"
 	$(Q) $(CC) -c $(INCLUDES) $(CFLAGS) $< -o $@
+
+$(LIB_SHARED): $(OBJECTS) $(LDDEPS)
+	@echo "    [CC] $@"
+	$(Q) $(CC) -shared -Wl,-soname,$(notdir $@) \
+		$(CFLAGS) $(CLDFLAGS) $(OBJECTS) -o $@
 
 $(LIB_STATIC): $(OBJECTS)
 	@echo "    [AR] $@"
