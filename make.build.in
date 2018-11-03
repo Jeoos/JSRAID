@@ -43,6 +43,8 @@ ELDFLAGS += @ELDFLAGS@
 LDDEPS += @LDDEPS@
 LIB_SUFFIX = @LIB_SUFFIX@
 
+DEFAULT_SYS_DIR = @DEFAULT_SYS_DIR@
+
 # Setup directory variables
 prefix = @prefix@
 

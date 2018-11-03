@@ -12,6 +12,8 @@
 #ifndef __LBD_TOOLCONTEXT_H__
 #define __LBD_TOOLCONTEXT_H__
 
+#include <limits.h>
+
 struct cmd_context {
 	/*
 	 * Memory handlers.
@@ -23,6 +25,9 @@ struct cmd_context {
 	const char *name;  /* needed before cmd->command is set */
 	struct command_name *cname;
 	struct command *command;
+	char system_dir[PATH_MAX];
+
+	struct jd_config_tree *cft;
 
 	char **argv;
 };

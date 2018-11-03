@@ -1,0 +1,2 @@
+/* Path to LVM system directory. */
+#undef DEFAULT_SYS_DIR

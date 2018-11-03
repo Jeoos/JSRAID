@@ -15,7 +15,9 @@ top_builddir = @top_builddir@
 
 SOURCES = \
 	mm/pool-fast.c \
-	dstruct/list.c
+	dstruct/list.c \
+	libjd-file.c \
+	libjd-config.c
 
 LIB_SHARED = libjsraid.$(LIB_SUFFIX)
 TARGETS = libjsraid.$(LIB_SUFFIX)

@@ -9,18 +9,56 @@
  * GNU General Public License for more details.
  */
 #include <stdio.h>
+#include <string.h>
 #include <malloc.h>
 #include "../../include/toolcontext.h"
 #include "../../include/libjraid.h"
+#include "../../include/configure.h"
+#include "../../include/config.h"
 
 void destroy_toolcontext(struct cmd_context *cmd)
 {
 
 }
 
+static int _load_config_file(struct cmd_context *cmd, const char *tag, int local)
+{
+	return 1;
+}
+
+/*
+ * Find and read lbd.conf.
+ */
+static int _init_lbd_conf(struct cmd_context *cmd)
+{
+	/* No config file if LBD_SYSTEM_DIR is empty */
+	if (!*cmd->system_dir) {
+		if (!(cmd->cft = config_open(CONFIG_FILE, NULL, 0))) {
+			printf("Failed to create config tree");
+			return 0;
+		}
+		return 1;
+	}
+
+	if (!_load_config_file(cmd, "", 0))
+		return 0;
+
+	return 1;
+}
+
 struct cmd_context *create_toolcontext(unsigned set_connections, unsigned set_filters)
 {
         struct cmd_context *cmd;
+
+        strcpy(cmd->system_dir, DEFAULT_SYS_DIR);
+
+	if (*cmd->system_dir && !jd_create_dir(cmd->system_dir)) {
+		printf("Failed to create LBD system dir for metadata backups, config "
+			  "files and internal cache.");
+		printf("Set environment variable LBD_SYSTEM_DIR to alternative location "
+			  "or empty string.");
+                goto out;
+        }
 
 	if (!(cmd = malloc(sizeof(*cmd)))) {
 		printf("Failed to allocate command context");
@@ -36,6 +74,9 @@ struct cmd_context *create_toolcontext(unsigned set_connections, unsigned set_fi
 		printf("Command memory pool creation failed");
 		goto out;
 	}
+
+	if (!_init_lbd_conf(cmd))
+		goto out;
 
         return cmd;
 out:

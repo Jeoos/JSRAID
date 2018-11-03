@@ -60,6 +60,16 @@ AC_PATH_TOOL(WC, wc)
 AC_PATH_TOOL(SORT, sort)
 
 ################################################################################
+dnl -- various defaults
+dnl -- FIXME: need to switch to regular option here  --sysconfdir
+AC_ARG_WITH(default-system-dir,
+	    AC_HELP_STRING([--with-default-system-dir=DIR],
+			   [default LBD system directory [/etc/lbd]]),
+	    DEFAULT_SYS_DIR=$withval, DEFAULT_SYS_DIR="/etc/lbd")
+AC_DEFINE_UNQUOTED(DEFAULT_SYS_DIR, ["$DEFAULT_SYS_DIR"],
+ 		   [Path to LBD system directory.])
+
+################################################################################
 dnl -- Check for header files.
 
 AC_HEADER_DIRENT
@@ -106,6 +116,7 @@ AC_SUBST(LBD_VERSION)
 AC_SUBST(LBD_MAJOR)
 AC_SUBST(LBD_MINOR)
 AC_SUBST(LBD_PATCHLEVEL)
+AC_SUBST(DEFAULT_SYS_DIR)
 
 ################################################################################
 dnl -- Transform 

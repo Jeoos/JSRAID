@@ -2,4 +2,5 @@ libjsraid.so {
 	global:
 		jraid_pool_create;
 		jraid_pool_destroy;
+		jd_create_dir;
 };

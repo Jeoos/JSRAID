@@ -43,6 +43,8 @@ ELDFLAGS += -Wl,--export-dynamic
 LDDEPS +=  .export.sym
 LIB_SUFFIX = so
 
+DEFAULT_SYS_DIR = /etc/lbd
+
 # Setup directory variables
 prefix = /usr
 

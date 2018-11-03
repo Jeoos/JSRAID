@@ -26,6 +26,7 @@ struct command commands[COMMAND_COUNT];
 static struct cmdline_context _cmdline;
 
 extern struct command_name command_names[MAX_COMMAND_NAMES];
+extern struct opt_name opt_names[ARG_COUNT + 1];
 
 int version(struct cmd_context *cmd __attribute__((unused)),
 	    int argc __attribute__((unused)),
@@ -61,6 +62,8 @@ struct cmd_context *init_lbd(unsigned set_connections, unsigned set_filters)
         
         /* create tool context */
         cmd = create_toolcontext(set_connections, set_filters);
+
+	_cmdline.opt_names = &opt_names[0];
 
         return cmd;
 }
@@ -119,19 +122,19 @@ int lbd_run_command(struct cmd_context *cmd, int argc, char **argv)
 		if (*arg++ != '-' || *arg++ != '-')
 			continue;
 
-		/* If we reach "--" then stop. */
+		/* if we reach "--" then stop. */
 		if (!*arg)
 			break;
 
 		arg_new = arg;
 		skip_hyphens = 1;
 		while (*arg) {
-			/* If we encounter '=', stop any further hyphen removal. */
+			/* if we encounter '=', stop any further hyphen removal. */
 			if (*arg == '='){
 				skip_hyphens = 0;
 			}
 
-			/* Do we need to keep the next character? */
+			/* do we need to keep the next character? */
 			if (*arg != '-' || !skip_hyphens) {
 				if (arg_new != arg){
 					*arg_new = *arg;
@@ -141,7 +144,7 @@ int lbd_run_command(struct cmd_context *cmd, int argc, char **argv)
 			arg++;
 		}
 
-		/* Terminate a shortened arg */
+		/* terminate a shortened arg */
 		if (arg_new != arg) {
 			*arg_new = '\0';
 		}

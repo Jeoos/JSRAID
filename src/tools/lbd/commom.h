@@ -13,6 +13,12 @@
  #define __COMMOM_H__
 
 enum {
+#define arg(a, b, c, d, e, f, g) a ,
+#include "args.h"
+#undef arg
+};
+
+enum {
 #define cmd(a, b) a ,
 #include "cmds.h"
 #undef cmd
