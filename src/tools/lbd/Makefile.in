@@ -18,7 +18,8 @@ SOURCES =\
 	command.c \
 	lbdcmdline.c \
 	lbdpool.c \
-	lbdself.c
+	lbdself.c \
+	lbd-toollib.c
 
 TARGETS =\
 	lbd

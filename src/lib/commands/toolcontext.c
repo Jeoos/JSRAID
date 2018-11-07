@@ -50,6 +50,11 @@ struct cmd_context *create_toolcontext(unsigned set_connections, unsigned set_fi
 {
         struct cmd_context *cmd;
 
+	if (!(cmd = malloc(sizeof(*cmd)))) {
+		printf("Failed to allocate command context");
+		return NULL;
+	}
+
         strcpy(cmd->system_dir, DEFAULT_SYS_DIR);
 
 	if (*cmd->system_dir && !jd_create_dir(cmd->system_dir)) {
@@ -59,11 +64,6 @@ struct cmd_context *create_toolcontext(unsigned set_connections, unsigned set_fi
 			  "or empty string.");
                 goto out;
         }
-
-	if (!(cmd = malloc(sizeof(*cmd)))) {
-		printf("Failed to allocate command context");
-		return NULL;
-	}
 
 	if (!(cmd->libmem = jraid_pool_create("library", 4 * 1024))) {
 		printf("Library memory pool creation failed");

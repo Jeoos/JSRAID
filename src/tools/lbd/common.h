@@ -1,5 +1,5 @@
 /*
- * commom.h
+ * common.h
  *
  * Contact: JeCortex@yahoo.com
  *
@@ -11,6 +11,14 @@
 
  #ifndef __COMMOM_H__
  #define __COMMOM_H__
+
+#include <stdint.h> 
+#include <sys/types.h> 
+#include "errors.h"
+#include "lbd-toollib.h"
+#include "../../include/toolcontext.h"
+
+#define ENABLE_ALL_DEVS 0x00000008
 
 enum {
 #define arg(a, b, c, d, e, f, g) a ,
@@ -32,5 +40,8 @@ struct arg_values {
 	int64_t i64_value;
 	uint64_t ui64_value;
 };
+
+extern int lbdself(struct cmd_context *cmd, int argc, char **argv);
+extern int lbdpool(struct cmd_context *cmd, int argc, char **argv);
 
 #endif

@@ -9,3 +9,9 @@
 
 version
 ID: version_general
+
+lbdpool
+ID: lbdpool_general
+
+lbdself
+ID: lbdself_general

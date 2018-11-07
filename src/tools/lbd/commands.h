@@ -16,3 +16,11 @@
 xx(version,
    "Display software and driver version information",
    PERMITTED_READ_ONLY | NO_METADATA_PROCESSING)
+
+xx(lbdpool,
+   "For lbd pool functions",
+   ENABLE_ALL_DEVS)
+
+xx(lbdself,
+   "For kinds of lbd itself functions",
+   ENABLE_ALL_DEVS)

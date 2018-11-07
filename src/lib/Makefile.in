@@ -16,7 +16,7 @@ top_builddir = @top_builddir@
 SOURCES = \
 	command.c \
 	commands/toolcontext.c \
-	config/config.c
+	config/config.c \
 
 LIB_NAME = liblbd-base
 LIB_STATIC = $(LIB_NAME).a

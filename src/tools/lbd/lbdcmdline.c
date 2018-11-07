@@ -12,12 +12,11 @@
 #include <stdio.h>
 #include <string.h>
 #include "../../include/tools.h"
-#include "../../include/toolcontext.h"
 #include "errors.h"
 #include "lbdcmdline.h"
 #include "command.h"
 #include "command-count.h"
-#include "commom.h"
+#include "common.h"
 
 #include "../../include/lbd-version.h"
 
@@ -39,6 +38,8 @@ int version(struct cmd_context *cmd __attribute__((unused)),
 
 static const struct command_function _command_functions[CMD_COUNT] = {
 	{ version_general_CMD, version },
+	{ lbdpool_general_CMD, lbdpool },
+	{ lbdself_general_CMD, lbdself },
 };
 
 static const char *last_path_component(char const *name)
@@ -55,7 +56,6 @@ int lbd_return_code(int ret)
 	return (ret == ECMD_PROCESSED ? 0 : ret);
 }
 
-
 struct cmd_context *init_lbd(unsigned set_connections, unsigned set_filters)
 {
 	struct cmd_context *cmd;
@@ -71,10 +71,11 @@ struct cmd_context *init_lbd(unsigned set_connections, unsigned set_filters)
 static struct command_name *_find_command_name(const char *name)
 {
 	int i;
-	
+        
 	for (i = 0; i < MAX_COMMAND_NAMES; i++) {
-		if (!command_names[i].name)
+                if (!command_names[i].name)
 			break;
+
 		if (!strcmp(command_names[i].name, name))
 			return &command_names[i];
 	}
@@ -98,10 +99,34 @@ static int _process_command_line(struct cmd_context *cmd, int *argc, char ***arg
 
 static struct command *_find_command(struct cmd_context *cmd, const char *path, int *argc, char **argv)
 {
-	return NULL;
+        const char *name;
+        int i;
+	int only_i = 0;
+	int variants = 0;
+        int best_i = 0;
+
+        name = last_path_component(path);
+
+	for (i = 0; i < COMMAND_COUNT; i++) {
+		if (strcmp(name, commands[i].name))
+			continue;
+		variants++;
+        }
+	for (i = 0; i < COMMAND_COUNT; i++) {
+		if (strcmp(name, commands[i].name))
+			continue;
+                if (variants == 1)
+                        only_i = i;
+
+                if (only_i)
+                        best_i = i;
+                 
+                /* steps fix: for !only_i */
+        }
+	return &commands[best_i];
 }
 
-int lbd_run_command(struct cmd_context *cmd, int argc, char **argv)
+int lbd_run_command(struct cmd_context *cmd, int argc, char **argv) 
 {
 	char *arg_new, *arg;
 	int i, rt;
@@ -205,8 +230,6 @@ int lbd_register_commands(struct cmd_context *cmd, const char *run_name)
 
 	for (i = 0; i < COMMAND_COUNT; i++) {
 		commands[i].command_enum = command_id_to_enum(commands[i].command_id);
-                printf("debug: command_id=%s command_enum=%d\n", commands[i].command_id,\
-                       commands[i].command_enum);
 		if (!commands[i].command_enum) {
 			_cmdline.commands = NULL;
 			_cmdline.num_commands = 0;
@@ -251,7 +274,7 @@ int lbd_main(int argc, char **argv)
                 }
 
 		if (*argv[1] == '-') {
-			printf("Specify options after a command: lbd [command] [options].");
+			printf("Specify options after a command: lbd [command] [options].\n");
 			return EINVALID_CMD_LINE;
 		}
 	}
@@ -272,7 +295,6 @@ int lbd_main(int argc, char **argv)
         if(!run_name)
                 run_shell = 1;
 	run_command_name = run_name;
-        printf("run_name=%s run_command_name=%s\n", run_name, run_command_name);
 	if (!lbd_register_commands(cmd, run_command_name)) {
 		ret = ECMD_FAILED;
 		goto out;

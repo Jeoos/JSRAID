@@ -1,5 +1,5 @@
 /*
- * lbdself.c
+ * metadata-out.h
  *
  * Contact: JeCortex@yahoo.com
  *
@@ -9,11 +9,10 @@
  * GNU General Public License for more details.
  */
 
-#include <stdio.h>
-#include "common.h"
-
-int lbdself(struct cmd_context *cmd, int argc, char **argv)
-{
-        printf("in lbdself argc:%d argv:%s\n", argc, argv[2]);
-        return 1;
-}
+struct plcreate_params {
+	/*
+	 * From argc and argv.
+	 */
+	char **pl_names;
+	uint32_t pl_count;
+};
