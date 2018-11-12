@@ -10,7 +10,6 @@
  */
 
 #include <stdio.h>
-#include <string.h>
 #include "../../include/tools.h"
 #include "errors.h"
 #include "lbdcmdline.h"
@@ -38,6 +37,8 @@ int version(struct cmd_context *cmd __attribute__((unused)),
 
 static const struct command_function _command_functions[CMD_COUNT] = {
 	{ version_general_CMD, version },
+	{ dvcreate_general_CMD, dvcreate },
+	{ dvremove_general_CMD, dvremove },
 	{ lbdpool_general_CMD, lbdpool },
 	{ lbdself_general_CMD, lbdself },
 };

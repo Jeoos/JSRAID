@@ -13,11 +13,9 @@
 #ifndef __LIBJRAID_H__
 #define __LIBJRAID_H__
 
-struct jd_pool;
+#include "jdstruct.h"
 
-struct jd_list {
-	struct jd_list *n, *p;
-};
+struct jd_list;
 
 struct jd_config_node {
 	const char *key;
@@ -31,6 +29,7 @@ struct jd_config_tree {
 	struct jd_pool *mem;
 	void *custom;
 };
+
 
 #define JD_LIST_HEAD_INIT(name)	 { &(name), &(name) }
 #define JD_LIST_INIT(name)	struct jd_list name = JD_LIST_HEAD_INIT(name)

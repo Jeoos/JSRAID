@@ -13,6 +13,7 @@
  #define __COMMOM_H__
 
 #include <stdint.h> 
+#include <string.h>
 #include <sys/types.h> 
 #include "errors.h"
 #include "lbd-toollib.h"
@@ -43,5 +44,7 @@ struct arg_values {
 
 extern int lbdself(struct cmd_context *cmd, int argc, char **argv);
 extern int lbdpool(struct cmd_context *cmd, int argc, char **argv);
+extern int dvcreate(struct cmd_context *cmd, int argc, char **argv);
+extern int dvremove(struct cmd_context *cmd, int argc, char **argv);
 
 #endif

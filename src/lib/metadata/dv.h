@@ -1,5 +1,5 @@
 /*
- * dstruct.h
+ * dv.h
  *
  * Contact: JeCortex@yahoo.com
  *
@@ -8,11 +8,16 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  */
-#ifndef __DSTRUCT_H__
-#define __DSTRUCT_H__
 
-void jd_list_init(struct jd_list *head);
-void jd_list_add(struct jd_list *head, struct jd_list *elem);
-void jd_list_del(struct jd_list *elem);
+#ifndef __DV_H__
+#define __DV_H__
+
+#include "libjraid.h"
+
+struct device;
+
+struct disk_volume {
+        struct device *dev;
+};
 
 #endif

@@ -12,7 +12,7 @@
 #include <malloc.h>
 #include <pthread.h>
 #include "../libjraid.h" 
-#include "../dstruct/dstruct.h" 
+#include "../jdstruct/jdstruct.h" 
 
 static JD_LIST_INIT(_jd_pools);
 static pthread_mutex_t _jd_pools_mutex = PTHREAD_MUTEX_INITIALIZER;

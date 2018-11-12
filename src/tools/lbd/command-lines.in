@@ -10,6 +10,12 @@
 version
 ID: version_general
 
+dvcreate
+ID: dvcreate_general
+
+dvremove
+ID: dvremove_general
+
 lbdpool
 ID: lbdpool_general
 

@@ -17,6 +17,8 @@ SOURCES = \
 	command.c \
 	commands/toolcontext.c \
 	config/config.c \
+	device/bcache.c \
+	metadata/metadata.c 
 
 LIB_NAME = liblbd-base
 LIB_STATIC = $(LIB_NAME).a

@@ -17,6 +17,8 @@ SOURCES =\
 	lbd.c \
 	command.c \
 	lbdcmdline.c \
+	dvcreate.c \
+	dvremove.c \
 	lbdpool.c \
 	lbdself.c \
 	lbd-toollib.c
