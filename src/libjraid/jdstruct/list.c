@@ -10,6 +10,7 @@
  */
 
 #include <assert.h>
+#include <stdio.h>
 #include "jdstruct.h"
 
 void jd_list_init(struct jd_list *head)
@@ -61,8 +62,10 @@ void jd_list_splice(struct jd_list *head, struct jd_list *head1)
 	assert(head->n);
 	assert(head1->n);
 
-	if (jd_list_empty(head1))
-	    return;
+        if (jd_list_empty(head1)){
+                printf("empty ...\n");
+	        return;
+        }
 
 	head1->p->n = head;
 	head1->n->p = head->p;

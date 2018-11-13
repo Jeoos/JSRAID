@@ -9,8 +9,13 @@
  * GNU General Public License for more details.
  */
 
+#ifndef __DEVICE_H__
+#define __DEVICE_H__
+
 #include <stdint.h>
 #include <sys/types.h> 
+
+#define DEV_REGULAR		0x00000002	/* Regular file? */
 
 struct device {
 	dev_t dev;
@@ -31,3 +36,5 @@ struct device {
 	const char *poolid;
 	const char *lbdid;
 };
+
+#endif

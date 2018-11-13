@@ -1,5 +1,5 @@
 /*
- * command.c
+ * metadata.h
  *
  * Contact: JeCortex@yahoo.com
  *
@@ -9,10 +9,9 @@
  * GNU General Public License for more details.
  */
 
-#include <stdio.h>
-#include "../include/tools.h"
+#ifndef __METADATA_OUT_H__
+#define __METADATA_OUT_H__
 
-void do_method(void)
-{
-        printf("do method ...\n");
-}
+#include "metadata-out.h"
+
+#endif

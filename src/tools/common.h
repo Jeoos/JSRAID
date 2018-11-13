@@ -17,7 +17,8 @@
 #include <sys/types.h> 
 #include "errors.h"
 #include "lbd-toollib.h"
-#include "../../include/toolcontext.h"
+#include "toolcontext.h"
+#include "dev-cache.h"
 
 #define ENABLE_ALL_DEVS 0x00000008
 

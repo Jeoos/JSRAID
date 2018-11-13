@@ -9,8 +9,8 @@
  * GNU General Public License for more details.
  */
 
- #include "../../include/config.h"
- #include "../../include/device.h"
+ #include "config.h"
+ #include "device.h"
 
 struct config_file {
 	off_t st_size;
@@ -34,8 +34,8 @@ struct jd_config_tree *config_open(config_source_t source,
 				   int keep_open)
 {
 	struct jd_config_tree *cft = jd_config_create();
-	struct config_source *cs;
-	struct config_file *cf;
+	//struct config_source *cs;
+	//struct config_file *cf;
 
 	if (!cft)
 		return NULL;

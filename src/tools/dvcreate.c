@@ -17,13 +17,14 @@ int dvcreate(struct cmd_context *cmd, int argc, char **argv)
         int rt;
 	struct processing_handle *handle;
 	struct dvcreate_params pp;
-        printf("in dv argc:%d argv:%s\n", argc, argv[2]);
+        printf("in dv argc:%d argv:%s\n", argc, argv[1]);
         if (!argc) {
                 printf("A right path needed.\n");
                 return 0;
         }
 
         /* set the default pool param vaules.*/
+        dv_defaults_init(&pp);
 
 	pp.dv_count = argc;
 	pp.dv_names = argv;

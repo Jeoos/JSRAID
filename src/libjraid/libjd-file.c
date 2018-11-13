@@ -16,12 +16,14 @@
 #include <dirent.h>
 #include <errno.h>
 
+#include "libjraid.h"
+
 static int _is_dir(const char *path)
 {
 	struct stat st;
 
 	if (stat(path, &st) < 0) {
-		printf("stat", path);
+		printf("stat %s\n", path);
 		return 0;
 	}
 
@@ -57,7 +59,7 @@ static int _create_dir_recursive(const char *dir)
 						goto out;
 				} else {
 					if (errno != EROFS)
-						printf("mkdir", orig);
+						printf("mkdir %s\n", orig);
 					goto out;
 				}
 			}
@@ -73,7 +75,7 @@ static int _create_dir_recursive(const char *dir)
 				goto out;
 		} else {
 			if (errno != EROFS)
-				printf("mkdir", orig);
+				printf("mkdir %s\n", orig);
 			goto out;
 		}
 	}

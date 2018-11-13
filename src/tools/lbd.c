@@ -10,13 +10,10 @@
  */
 
 #include <stdio.h>
-#include "../../include/tools.h"
 #include "lbdcmdline.h"
 
 int main(int argc, char **argv)
 {
-        printf("In lbd, blah blah ...\n");
-        //do_method();
         return lbd_main(argc, argv);
 }
 

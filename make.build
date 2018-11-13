@@ -55,6 +55,31 @@ vpath %.in $(srcdir)
 .SUFFIXES:
 .SUFFIXES: .c .o .so .a
 
+ifeq ("$(notdir $(CC))", "gcc")
+WFLAGS +=\
+ -Wall\
+ -Wcast-align\
+ -Wfloat-equal\
+ -Wformat-security\
+ -Winline\
+ -Wmissing-format-attribute\
+ -Wmissing-include-dirs\
+ -Wmissing-noreturn\
+ -Wpointer-arith\
+ -Wredundant-decls\
+ -Wshadow\
+ -Wundef\
+ -Wwrite-strings
+
+WCFLAGS +=\
+ -Wmissing-declarations\
+ -Wmissing-prototypes\
+ -Wnested-externs\
+ -Wold-style-definition\
+ -Wstrict-prototypes\
+ -Wuninitialized
+endif
+
 SUBDIRS.jsraid := $(SUBDIRS:=.jsraid)
 SUBDIRS.clean := $(SUBDIRS:=.clean)
 SUBDIRS.distclean := $(SUBDIRS:=.distclean)
@@ -63,6 +88,9 @@ OBJECTS = $(SOURCES:%.c=%.o)
 
 CFLAGS += -fPIC
 INCLUDES += -I$(srcdir) -I$(top_builddir)/src/include
+LDFLAGS += -L$(top_builddir)/src/lib -L$(top_builddir)/src/libjraid
+
+EXTRA_EXEC_LDFLAGS += -Wl,-z,relro,-z,now -pie -fPIE
 
 TARGETS += $(LIB_SHARED) $(LIB_STATIC) $(OBJECTS)
 
@@ -76,12 +104,12 @@ $(SUBDIRS.jsraid):
 
 %.o: %.c
 	@echo "    [CC] $<"
-	$(Q) $(CC) -c $(INCLUDES) $(CFLAGS) $< -o $@
+	$(Q) $(CC) -c $(INCLUDES) $(WFLAGS) $(WCFLAGS) $(CFLAGS) $< -o $@
 
 $(LIB_SHARED): $(OBJECTS) $(LDDEPS)
 	@echo "    [CC] $@"
 	$(Q) $(CC) -shared -Wl,-soname,$(notdir $@) \
-		$(CFLAGS) $(CLDFLAGS) $(OBJECTS) -o $@
+		$(CFLAGS) $(CLDFLAGS) $(LDFLAGS) $(OBJECTS) -o $@
 
 $(LIB_STATIC): $(OBJECTS)
 	@echo "    [AR] $@"

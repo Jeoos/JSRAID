@@ -1,2 +1,2 @@
-/* Path to LVM system directory. */
+/* Path to LBD system directory. */
 #undef DEFAULT_SYS_DIR

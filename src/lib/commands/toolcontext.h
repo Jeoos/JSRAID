@@ -13,6 +13,7 @@
 #define __LBD_TOOLCONTEXT_H__
 
 #include <limits.h>
+#include "dev-cache.h"
 
 struct cmd_context {
 	/*
@@ -26,6 +27,7 @@ struct cmd_context {
 	struct command_name *cname;
 	struct command *command;
 	char system_dir[PATH_MAX];
+	char dev_dir[PATH_MAX];
 
 	struct jd_config_tree *cft;
 
@@ -33,5 +35,6 @@ struct cmd_context {
 };
 
 struct cmd_context *create_toolcontext(unsigned set_connections, unsigned set_filters);
+void destroy_toolcontext(struct cmd_context *cmd);
 
 #endif

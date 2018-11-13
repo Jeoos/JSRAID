@@ -15,7 +15,7 @@ dnl -- Process this file with autoconf to produce a configure script.
 
 AC_INIT
 CONFIGURE_LINE="$0 $@"
-AC_CONFIG_SRCDIR([src/tools/lbd/lbd.c])
+AC_CONFIG_SRCDIR([src/tools/lbd.c])
 AC_CONFIG_HEADERS([src/include/configure.h])
 
 ################################################################################
@@ -124,7 +124,7 @@ AC_CONFIG_FILES([
 Makefile
 src/lib/Makefile
 src/libjraid/Makefile
-src/tools/lbd/Makefile
+src/tools/Makefile
 src/include/lbd-version.h
 make.build
 ])

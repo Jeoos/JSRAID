@@ -11,10 +11,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
-#include "../../include/toolcontext.h"
-#include "../../include/libjraid.h"
-#include "../../include/configure.h"
-#include "../../include/config.h"
+#include "toolcontext.h"
+#include "libjraid.h"
+#include "configure.h"
+#include "config.h"
 
 void destroy_toolcontext(struct cmd_context *cmd)
 {
@@ -31,7 +31,7 @@ static int _load_config_file(struct cmd_context *cmd, const char *tag, int local
  */
 static int _init_lbd_conf(struct cmd_context *cmd)
 {
-	/* No config file if LBD_SYSTEM_DIR is empty */
+	/* no config file if LBD_SYSTEM_DIR is empty */
 	if (!*cmd->system_dir) {
 		if (!(cmd->cft = config_open(CONFIG_FILE, NULL, 0))) {
 			printf("Failed to create config tree");
@@ -44,6 +44,16 @@ static int _init_lbd_conf(struct cmd_context *cmd)
 		return 0;
 
 	return 1;
+}
+
+static int _init_dev_cache(struct cmd_context *cmd)
+{
+	if (!dev_cache_init(cmd))
+		return 0;
+
+        /* steps fix ... */
+
+        return 1;
 }
 
 struct cmd_context *create_toolcontext(unsigned set_connections, unsigned set_filters)
@@ -76,6 +86,9 @@ struct cmd_context *create_toolcontext(unsigned set_connections, unsigned set_fi
 	}
 
 	if (!_init_lbd_conf(cmd))
+		goto out;
+
+	if (!_init_dev_cache(cmd))
 		goto out;
 
         return cmd;

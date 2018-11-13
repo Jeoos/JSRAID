@@ -14,11 +14,12 @@ top_srcdir = @top_srcdir@
 top_builddir = @top_builddir@
 
 SOURCES = \
-	command.c \
 	commands/toolcontext.c \
 	config/config.c \
 	device/bcache.c \
-	metadata/metadata.c 
+	device/dev-cache.c \
+	metadata/metadata.c \
+	bdstruct/btree.c 
 
 LIB_NAME = liblbd-base
 LIB_STATIC = $(LIB_NAME).a

@@ -12,7 +12,7 @@
 #ifndef __LBDTOOLLIB_H__
 #define __LBDTOOLLIB_H__
 
-#include "../../include/metadata-out.h"
+#include "metadata-out.h"
 
 struct cmd_context;
 
@@ -37,4 +37,16 @@ typedef int (*process_single_dv_fn_t) (struct cmd_context *cmd,
 
 typedef int (*process_single_pl_fn_t) (struct cmd_context *cmd,
 				  struct processing_handle *handle);
+
+int process_each_dv(struct cmd_context *cmd,
+		    int argc, char **argv, const char *only_this_vgname,
+		    int all_is_set, uint32_t read_flags,
+		    struct processing_handle *handle,
+		    process_single_dv_fn_t process_single_dv);
+
+int process_each_pl(struct cmd_context *cmd,
+		    int argc, char **argv, const char *only_this_vgname,
+		    int all_is_set, uint32_t read_flags,
+		    struct processing_handle *handle,
+		    process_single_pl_fn_t process_single_pl);
 #endif

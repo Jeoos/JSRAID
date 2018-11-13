@@ -11,8 +11,7 @@
 
 #include <malloc.h>
 #include <pthread.h>
-#include "../libjraid.h" 
-#include "../jdstruct/jdstruct.h" 
+#include "../../include/libjraid.h" 
 
 static JD_LIST_INIT(_jd_pools);
 static pthread_mutex_t _jd_pools_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -51,4 +50,9 @@ struct jd_pool *jraid_pool_create(const char *name, size_t chunk_hint)
 	jd_list_add(&_jd_pools, &p->list);
 	pthread_mutex_unlock(&_jd_pools_mutex);
         return p;
+}
+
+void jraid_pool_destroy(struct jd_pool *p)
+{
+
 }

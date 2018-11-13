@@ -10,14 +10,13 @@
  */
 
 #include <stdio.h>
-#include "../../include/tools.h"
 #include "errors.h"
 #include "lbdcmdline.h"
 #include "command.h"
 #include "command-count.h"
 #include "common.h"
 
-#include "../../include/lbd-version.h"
+#include "lbd-version.h"
 
 struct command commands[COMMAND_COUNT];
 
@@ -26,7 +25,7 @@ static struct cmdline_context _cmdline;
 extern struct command_name command_names[MAX_COMMAND_NAMES];
 extern struct opt_name opt_names[ARG_COUNT + 1];
 
-int version(struct cmd_context *cmd __attribute__((unused)),
+static int version(struct cmd_context *cmd __attribute__((unused)),
 	    int argc __attribute__((unused)),
 	    char **argv __attribute__((unused)))
 {
@@ -85,7 +84,7 @@ static struct command_name *_find_command_name(const char *name)
 
 static const char *_copy_command_line(struct cmd_context *cmd, int argc, char **argv)
 {
-	char *rt="FIXME blah blah ...";
+	const char *rt="FIXME blah blah ...";
 	/*
 	 * Build up the complete command line, used as a
 	 * description for backups.
@@ -130,7 +129,7 @@ static struct command *_find_command(struct cmd_context *cmd, const char *path, 
 int lbd_run_command(struct cmd_context *cmd, int argc, char **argv) 
 {
 	char *arg_new, *arg;
-	int i, rt;
+	int i, rt=0;
 	int skip_hyphens;
 
 	if (!(cmd->name = strdup(last_path_component(argv[0])))) {
@@ -249,7 +248,6 @@ int lbd_register_commands(struct cmd_context *cmd, const char *run_name)
 int lbd_main(int argc, char **argv)
 {
         int ret;
-        const char *base;
 	struct cmd_context *cmd;
         const char *run_name;
         const char *run_command_name = NULL;
@@ -258,10 +256,6 @@ int lbd_main(int argc, char **argv)
         if(!argv)
                 return EINIT_FAILED;
         
-        /* find last path component */
-	base = last_path_component(argv[0]);
-        printf("base cmd = %s\n", base);
-
         /* analyze misc options */
 	if (argc > 1) {
 		/* "version" command is simple enough so it doesn't need any complex init */

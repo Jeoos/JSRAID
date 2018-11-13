@@ -16,6 +16,7 @@ top_builddir = @top_builddir@
 SOURCES = \
 	mm/pool-fast.c \
 	jdstruct/list.c \
+	jdstruct/hash.c \
 	libjd-file.c \
 	libjd-config.c
 

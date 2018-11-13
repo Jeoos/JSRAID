@@ -32,7 +32,9 @@ struct dvcreate_params {
 
 	struct jd_list arg_devices;     /* dvcreate_device, one for each dv_name */
 	struct jd_list arg_create;      /* dvcreate_device, used for dvcreate */
+	struct jd_list arg_remove;
 	struct jd_list arg_fail;        /* dvcreate_device, failed to create */
+	struct jd_list arg_process;        /* dvcreate_device, for create process */
 };
 
 struct plcreate_params {
@@ -48,3 +50,5 @@ struct disk_volume *dv_create(struct cmd_context *cmd,
 				  struct device *dev,
 				  struct dv_create_args *dva);
 int dv_write(struct cmd_context *cmd, struct disk_volume *dv);
+
+void dv_defaults_init(struct dvcreate_params *pp);

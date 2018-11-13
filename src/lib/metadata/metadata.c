@@ -10,10 +10,9 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include "../../include/device.h"
-#include "../../include/toolcontext.h"
-
-struct dv_create_args;
+#include "metadata.h"
 
 struct disk_volume *dv_create(struct cmd_context *cmd,
 				  struct device *dev,
@@ -25,4 +24,15 @@ struct disk_volume *dv_create(struct cmd_context *cmd,
 int dv_write(struct cmd_context *cmd, struct disk_volume *dv)
 {
         return 1;
+}
+
+void dv_defaults_init(struct dvcreate_params *pp)
+{
+        memset(pp, 0, sizeof(struct dvcreate_params));
+
+	jd_list_init(&pp->arg_devices);
+	jd_list_init(&pp->arg_create);
+	jd_list_init(&pp->arg_remove);
+	jd_list_init(&pp->arg_fail);
+	jd_list_init(&pp->arg_process);
 }

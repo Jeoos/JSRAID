@@ -12,12 +12,10 @@
 #ifndef __BCACHE_H__
 #define __BCACHE_H__
 
-#include "../../include/libjraid.h"
-#include "../../include/jdstruct.h"
-
 #include <linux/fs.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "libjraid.h"
 
 /* FIXME: move somewhere more sensible */
 #define container_of(v, t, head) \

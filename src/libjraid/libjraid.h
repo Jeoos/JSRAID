@@ -15,6 +15,9 @@
 
 #include "jdstruct.h"
 
+#define JD_LIST_HEAD_INIT(name)	 { &(name), &(name) }
+#define JD_LIST_INIT(name)	struct jd_list name = JD_LIST_HEAD_INIT(name)
+
 struct jd_list;
 
 struct jd_config_node {
@@ -30,12 +33,9 @@ struct jd_config_tree {
 	void *custom;
 };
 
-
-#define JD_LIST_HEAD_INIT(name)	 { &(name), &(name) }
-#define JD_LIST_INIT(name)	struct jd_list name = JD_LIST_HEAD_INIT(name)
-
 struct jd_pool *jraid_pool_create(const char *name, size_t chunk_hint);
 void jraid_pool_destroy(struct jd_pool *p);
+
 int jd_create_dir(const char *dir);
 struct jd_config_tree *jd_config_create(void);
 

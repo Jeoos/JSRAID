@@ -15,10 +15,10 @@ top_builddir = @top_builddir@
 abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
 
-SUBDIRS = src/libjraid src/lib src/tools/lbd
+SUBDIRS = src/libjraid src/lib src/tools
 
 ifeq ($(MAKECMDGOALS),distclean)
-	SUBDIRS = src/libjraid src/lib src/tools/lbd
+	SUBDIRS = src/libjraid src/lib src/tools
 endif
 
 DISTCLEAN_TARGETS += config.log config.status make.tmpl \
@@ -29,10 +29,10 @@ CLEAN_DIRS += autom4te.cache
 
 include make.build
 
-src/tools/lbd: src/lib
+src/tools: src/lib
 
 src/lib: src/libjraid
 
-src/tools/lbd.jsraid: src/lib.jsraid
+src/tools.jsraid: src/lib.jsraid
 
 src/lib.jsraid: src/libjraid.jsraid
