@@ -19,7 +19,9 @@ SOURCES = \
 	device/bcache.c \
 	device/dev-cache.c \
 	metadata/metadata.c \
-	bdstruct/btree.c 
+	bdstruct/btree.c \
+	bdstruct/str_list.c \
+	cache/lbdcache.c
 
 LIB_NAME = liblbd-base
 LIB_STATIC = $(LIB_NAME).a

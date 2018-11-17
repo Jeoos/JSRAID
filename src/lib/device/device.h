@@ -15,7 +15,14 @@
 #include <stdint.h>
 #include <sys/types.h> 
 
+#define MAJOR(x) major((x))
+#define MINOR(x) minor((x))
+
+#define ID_LEN 32
+
 #define DEV_REGULAR		0x00000002	/* Regular file? */
+
+struct dev_iter;
 
 struct device {
 	dev_t dev;
@@ -33,8 +40,10 @@ struct device {
 	uint64_t size;
 	uint64_t end;
 
-	const char *poolid;
+	const char *lpid;
 	const char *lbdid;
+	char dvid[ID_LEN + 1]; /* if device is a DV */
+	char _padding[7];
 };
 
 #endif

@@ -63,10 +63,11 @@ void *jd_hash_get_data(struct jd_hash_table *t __attribute__((unused)),
 void jd_hash_iter(struct jd_hash_table *t, jd_hash_iterate_fn f);
 void jd_hash_wipe(struct jd_hash_table *t);
 
+unsigned int jd_list_size(const struct jd_list *head);
+
 #define jd_list_struct_base(v, t, head) \
     ((t *)((const char *)(v) - (const char *)&((t *) 0)->head))
 
-#endif
 
 #define jd_list_item(v, t) jd_list_struct_base((v), t, list)
 
@@ -75,6 +76,9 @@ void jd_hash_wipe(struct jd_hash_table *t);
 	     t = jd_list_struct_base(v->field.n, __typeof__(*v), field); \
 	     &v->field != (head); \
 	     v = t, t = jd_list_struct_base(v->field.n, __typeof__(*v), field))
+
+#define jd_list_iterate_safe(v, t, head) \
+	for (v = (head)->n, t = v->n; v != head; v = t, t = v->n)
 
 #define jd_list_iterate_items_safe(v, t, head) \
 	jd_list_iterate_items_gen_safe(v, t, (head), list)
@@ -85,3 +89,8 @@ void jd_hash_wipe(struct jd_hash_table *t);
 	     v = jd_list_struct_base(v->field.n, __typeof__(*v), field))
 
 #define jd_list_iterate_items(v, head) jd_list_iterate_items_gen(v, (head), list)
+
+#define jd_list_iterate(v, head) \
+	for (v = (head)->n; v != head; v = v->n)
+
+#endif

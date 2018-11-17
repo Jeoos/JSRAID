@@ -16,7 +16,7 @@ int dvcreate(struct cmd_context *cmd, int argc, char **argv)
 {
         int rt;
 	struct processing_handle *handle;
-	struct dvcreate_params pp;
+	struct dvcreate_params dp;
         printf("in dv argc:%d argv:%s\n", argc, argv[1]);
         if (!argc) {
                 printf("A right path needed.\n");
@@ -24,17 +24,17 @@ int dvcreate(struct cmd_context *cmd, int argc, char **argv)
         }
 
         /* set the default pool param vaules.*/
-        dv_defaults_init(&pp);
+        dv_defaults_init(&dp);
 
-	pp.dv_count = argc;
-	pp.dv_names = argv;
+	dp.dv_count = argc;
+	dp.dv_names = argv;
 
 	if (!(handle = init_processing_handle(cmd, NULL))) {
 		printf("Failed to initialize processing handle.");
 		return ECMD_FAILED;
 	}
 
-	if (!dvcreate_each_device(cmd, handle, &pp))
+	if (!dvcreate_each_device(cmd, handle, &dp))
 		rt = ECMD_FAILED;
 
         return rt;

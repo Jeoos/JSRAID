@@ -135,20 +135,15 @@ void jd_hash_destroy(struct jd_hash_table *t)
 static struct jd_hash_node **_find(struct jd_hash_table *t, const void *key,
 				   uint32_t len)
 {
-        printf("_find in 0 ...\n");
 	unsigned h = _hash(key, len) & (t->num_slots - 1);
 	struct jd_hash_node **c;
-        printf("_find in 1 ...\n");
 
 	for (c = &t->slots[h]; *c; c = &((*c)->next)) {
-                printf("_find in 2 ...\n");
 		if ((*c)->keylen != len)
 			continue;
-                printf("_find in 3 ...\n");
 
 		if (!memcmp(key, (*c)->key, len))
 			break;
-                printf("_find in 4 ...\n");
 	}
 
 	return c;
@@ -201,7 +196,6 @@ void *jd_hash_lookup(struct jd_hash_table *t, const char *key)
 {
         printf("lookup in ...\n");
 	return jd_hash_lookup_binary(t, key, strlen(key) + 1);
-        printf("lookup out ...\n");
 }
 
 int jd_hash_insert(struct jd_hash_table *t, const char *key, void *data)

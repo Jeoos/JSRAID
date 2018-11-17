@@ -62,10 +62,8 @@ void jd_list_splice(struct jd_list *head, struct jd_list *head1)
 	assert(head->n);
 	assert(head1->n);
 
-        if (jd_list_empty(head1)){
-                printf("empty ...\n");
+        if (jd_list_empty(head1))
 	        return;
-        }
 
 	head1->p->n = head;
 	head1->n->p = head->p;
@@ -74,4 +72,15 @@ void jd_list_splice(struct jd_list *head, struct jd_list *head1)
 	head->p = head1->p;
 
 	jd_list_init(head1);
+}
+
+unsigned int jd_list_size(const struct jd_list *head)
+{
+	unsigned int s = 0;
+	const struct jd_list *v;
+
+	jd_list_iterate(v, head)
+	    s++;
+
+	return s;
 }

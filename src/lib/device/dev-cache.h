@@ -18,5 +18,7 @@ struct cmd_context;
 struct device *dev_cache_get(const char *name);
 int dev_cache_init(struct cmd_context *cmd);
 int dev_cache_exit(void);
+struct dev_iter *dev_iter_create(int unused);
+struct device *dev_iter_get(struct dev_iter *iter);
 
  #endif

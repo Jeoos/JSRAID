@@ -12,6 +12,12 @@
 #include "dv.h"
 #include "toolcontext.h"
 
+struct lpnameid_list {
+	struct jd_list list;
+	const char *lp_name;
+	const char *lpid;
+};
+
 struct dv_create_args {
 	uint64_t size;
 	uint64_t data_alignment;
@@ -37,18 +43,12 @@ struct dvcreate_params {
 	struct jd_list arg_process;        /* dvcreate_device, for create process */
 };
 
-struct plcreate_params {
-	/*
-	 * From argc and argv.
-	 */
-	char **pl_names;
-	uint32_t pl_count;
-        unsigned is_remove : 1;
-};
-
 struct disk_volume *dv_create(struct cmd_context *cmd,
 				  struct device *dev,
 				  struct dv_create_args *dva);
 int dv_write(struct cmd_context *cmd, struct disk_volume *dv);
 
 void dv_defaults_init(struct dvcreate_params *pp);
+
+int get_lpnameids(struct cmd_context *cmd, struct jd_list *lpnameids,
+                int include_internal);

@@ -16,24 +16,24 @@ int lbdpool(struct cmd_context *cmd, int argc, char **argv)
 {
         int rt;
 	struct processing_handle *handle;
-	struct plcreate_params pp;
+	struct dvcreate_params dp;
         printf("in lbdpool argc:%d argv:%s\n", argc, argv[2]);
         if (!argc) {
-                printf("A right path needed.\n");
+                printf("right path needed.\n");
                 return 0;
         }
 
         /* set the default pool param vaules.*/
 
-	pp.pl_count = argc;
-	pp.pl_names = argv;
+	dp.dv_count = argc;
+	dp.dv_names = argv;
 
 	if (!(handle = init_processing_handle(cmd, NULL))) {
 		printf("Failed to initialize processing handle.");
 		return ECMD_FAILED;
 	}
 
-	if (!plcreate_each_device(cmd, handle, &pp))
+	if (!dvcreate_each_device(cmd, handle, &dp))
 		rt = ECMD_FAILED;
 
         return rt;

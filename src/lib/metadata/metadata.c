@@ -11,8 +11,9 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "../../include/device.h"
+#include "device.h"
 #include "metadata.h"
+#include "lbdcache.h"
 
 struct disk_volume *dv_create(struct cmd_context *cmd,
 				  struct device *dev,
@@ -35,4 +36,11 @@ void dv_defaults_init(struct dvcreate_params *pp)
 	jd_list_init(&pp->arg_remove);
 	jd_list_init(&pp->arg_fail);
 	jd_list_init(&pp->arg_process);
+}
+
+int get_lpnameids(struct cmd_context *cmd, struct jd_list *lpnameids,
+                int include_internal)
+{
+	lbdcache_get_lpnameids(cmd, include_internal, lpnameids);
+        return 1;
 }

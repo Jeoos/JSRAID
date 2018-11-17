@@ -21,7 +21,7 @@ struct node {
 	void *data;
 };
 
-struct btree_iter{
+struct btree_iter {
 
 };
 

@@ -14,11 +14,17 @@
 #define __LIBJRAID_H__
 
 #include "jdstruct.h"
+#include "bdstruct.h"
 
 #define JD_LIST_HEAD_INIT(name)	 { &(name), &(name) }
 #define JD_LIST_INIT(name)	struct jd_list name = JD_LIST_HEAD_INIT(name)
 
 struct jd_list;
+
+struct jd_str_list {
+	struct jd_list list;
+	const char *str;
+};
 
 struct jd_config_node {
 	const char *key;

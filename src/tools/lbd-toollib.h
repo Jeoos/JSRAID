@@ -25,28 +25,15 @@ struct processing_handle *init_processing_handle(struct cmd_context *cmd, struct
 
 int dvcreate_each_device(struct cmd_context *cmd,
 			 struct processing_handle *handle,
-			 struct dvcreate_params *pp);
-
-int plcreate_each_device(struct cmd_context *cmd,
-			 struct processing_handle *handle,
-			 struct plcreate_params *pp);
+			 struct dvcreate_params *dp);
 
 typedef int (*process_single_dv_fn_t) (struct cmd_context *cmd,
 				  struct disk_volume *dv,
 				  struct processing_handle *handle);
 
-typedef int (*process_single_pl_fn_t) (struct cmd_context *cmd,
-				  struct processing_handle *handle);
-
-int process_each_dv(struct cmd_context *cmd,
-		    int argc, char **argv, const char *only_this_vgname,
-		    int all_is_set, uint32_t read_flags,
+int process_each_dv(struct cmd_context *cmd, int argc, char **argv, 
+                    int all_is_set, uint32_t read_flags,
 		    struct processing_handle *handle,
 		    process_single_dv_fn_t process_single_dv);
 
-int process_each_pl(struct cmd_context *cmd,
-		    int argc, char **argv, const char *only_this_vgname,
-		    int all_is_set, uint32_t read_flags,
-		    struct processing_handle *handle,
-		    process_single_pl_fn_t process_single_pl);
 #endif
