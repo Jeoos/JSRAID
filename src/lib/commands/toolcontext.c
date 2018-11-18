@@ -15,6 +15,7 @@
 #include "libjraid.h"
 #include "configure.h"
 #include "config.h"
+#include "lbdcache.h"
 
 void destroy_toolcontext(struct cmd_context *cmd)
 {
@@ -89,6 +90,9 @@ struct cmd_context *create_toolcontext(unsigned set_connections, unsigned set_fi
 		goto out;
 
 	if (!_init_dev_cache(cmd))
+		goto out;
+
+	if (!lbdcache_init(cmd))
 		goto out;
 
         return cmd;

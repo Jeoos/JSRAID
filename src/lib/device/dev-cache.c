@@ -80,7 +80,7 @@ static int _insert_dev(const char *path, dev_t d)
 	}
 
         if (!dev_by_devt && !dev_by_path) {
-	        printf("create for %d:%d %s\n",
+                printf("create for %d:%d %s\n",
                         (int)MAJOR(d), (int)MINOR(d), path);
 
 		dev = _dev_create(d);

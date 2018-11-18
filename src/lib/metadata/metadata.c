@@ -15,6 +15,11 @@
 #include "metadata.h"
 #include "lbdcache.h"
 
+int is_orphan_lp(const char *lp_name)
+{
+	return (lp_name && !strncmp(lp_name, ORPHAN_PREFIX, sizeof(ORPHAN_PREFIX) - 1)) ? 1 : 0;
+}
+
 struct disk_volume *dv_create(struct cmd_context *cmd,
 				  struct device *dev,
 				  struct dv_create_args *dva)
@@ -43,4 +48,38 @@ int get_lpnameids(struct cmd_context *cmd, struct jd_list *lpnameids,
 {
 	lbdcache_get_lpnameids(cmd, include_internal, lpnameids);
         return 1;
+}
+
+static struct lbd_pool *_lp_read_orphans(struct cmd_context *cmd,
+					     uint32_t warn_flags,
+					     const char *orphan_lpname,
+					     int *consistent)
+{
+        struct lbd_pool *lp = NULL;
+
+        return lp;
+}
+
+struct lbd_pool *_lp_read(struct cmd_context *cmd, const char *lp_name,
+			     const char *lpid, uint32_t read_flags)
+{
+	int consistent = 1;
+        uint32_t warn_flags=0; 
+	if (is_orphan_lp(lp_name)) {
+	        return _lp_read_orphans(cmd, warn_flags, lp_name, &consistent);
+        }
+        /* FIXME: for !is_orphan_lp*/
+        return NULL;
+}
+
+struct lbd_pool *lp_read(struct cmd_context *cmd, const char *lp_name,
+                const char *lpid, uint32_t read_flags, uint32_t lockd_state)
+{
+        struct lbd_pool *lp;
+        lp = _lp_read(cmd, lp_name, lpid, read_flags);
+        if (!lp){
+                printf("err read lp.\n");
+                return NULL;
+        }
+        return lp; 
 }

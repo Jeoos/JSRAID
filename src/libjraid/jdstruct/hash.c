@@ -194,7 +194,6 @@ void jd_hash_remove_binary(struct jd_hash_table *t, const void *key,
 
 void *jd_hash_lookup(struct jd_hash_table *t, const char *key)
 {
-        printf("lookup in ...\n");
 	return jd_hash_lookup_binary(t, key, strlen(key) + 1);
 }
 

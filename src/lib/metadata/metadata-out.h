@@ -10,12 +10,32 @@
  */
 
 #include "dv.h"
-#include "toolcontext.h"
+#include "lp.h"
+
+#ifndef __METADATA_OUT_H__
+#define __METADATA_OUT_H__
+
+struct cmd_context;
+struct format_handler;
+struct format_type {
+	struct jd_list list;
+	struct cmd_context *cmd;
+	struct format_handler *ops;
+	struct jd_list mda_ops; /* list of permissible mda ops. */
+	const char *name;
+	const char *orphan_lp_name;
+	struct lbd_pool *orphan_lp; /* only one ever exists. */
+};
 
 struct lpnameid_list {
 	struct jd_list list;
 	const char *lp_name;
 	const char *lpid;
+};
+
+struct dv_list {
+	struct jd_list list;
+	struct disk_volume *dv;
 };
 
 struct dv_create_args {
@@ -43,12 +63,26 @@ struct dvcreate_params {
 	struct jd_list arg_process;        /* dvcreate_device, for create process */
 };
 
+struct format_instance {
+
+};
+
+int is_orphan_lp(const char *lp_name);
+
 struct disk_volume *dv_create(struct cmd_context *cmd,
 				  struct device *dev,
 				  struct dv_create_args *dva);
 int dv_write(struct cmd_context *cmd, struct disk_volume *dv);
 
-void dv_defaults_init(struct dvcreate_params *pp);
+void dv_defaults_init(struct dvcreate_params *dp);
 
 int get_lpnameids(struct cmd_context *cmd, struct jd_list *lpnameids,
                 int include_internal);
+
+struct lbd_pool *lp_read(struct cmd_context *cmd, const char *lp_name,
+                const char *lpid, uint32_t read_flags, uint32_t lockd_state);
+
+struct lbd_pool *_lp_read(struct cmd_context *cmd, const char *lp_name,
+			     const char *lpid, uint32_t read_flags);
+
+#endif

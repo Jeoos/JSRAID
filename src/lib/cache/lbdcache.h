@@ -12,6 +12,10 @@
 #ifndef __LBDCACHE_H__
 #define  __LBDCACHE_H__
 
+#define LP_ORPHANS	"#orphans"
+#define ORPHAN_PREFIX LP_ORPHANS
+#define ORPHAN_LP_NAME(fmt) ORPHAN_PREFIX "_" fmt
+
 struct jd_list;
 struct cmd_context;
 

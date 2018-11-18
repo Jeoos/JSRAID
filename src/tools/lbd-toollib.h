@@ -28,7 +28,7 @@ int dvcreate_each_device(struct cmd_context *cmd,
 			 struct dvcreate_params *dp);
 
 typedef int (*process_single_dv_fn_t) (struct cmd_context *cmd,
-				  struct disk_volume *dv,
+				  struct lbd_pool *lp, struct disk_volume *dv,
 				  struct processing_handle *handle);
 
 int process_each_dv(struct cmd_context *cmd, int argc, char **argv, 

@@ -17,6 +17,8 @@
 #include "metadata-out.h"
 
 #define ID_LEN 32
+#define ORPHAN_VG_NAME "ORPHAN"
+
 static JD_LIST_INIT(_lpinfos);
 static struct jd_hash_table *_lpid_hash = NULL;
 static struct jd_hash_table *_lpname_hash = NULL;
@@ -45,6 +47,25 @@ struct lbdcache_lpinfo {
 	struct lbdcache_lpinfo *next; /* another LP with same name? */
 };
 
+static int init_lbdcache_orphans(struct cmd_context *cmd)
+{
+        struct lbdcache_lpinfo *lpinfo;
+
+        if (!(lpinfo = jd_hash_lookup(_lpname_hash, ORPHAN_VG_NAME))){
+                if (!(lpinfo = malloc(sizeof(*lpinfo)))) {
+                        printf("err malloc.\n");
+                        return 0;
+                }
+                lpinfo->lpname = strdup(ORPHAN_VG_NAME);
+
+                if (!jd_hash_insert(_lpname_hash, lpinfo->lpname, lpinfo))
+                        return 0;
+
+	        jd_list_add(&_lpinfos, &lpinfo->list);
+        }
+
+	return 1;
+}
 
 int lbdcache_init(struct cmd_context *cmd)
 {
@@ -54,6 +75,9 @@ int lbdcache_init(struct cmd_context *cmd)
 		return 0;
 
 	if (!(_lpid_hash = jd_hash_create(128)))
+		return 0;
+
+	if (!init_lbdcache_orphans(cmd))
 		return 0;
 
 	return 1;
@@ -66,7 +90,6 @@ int lbdcache_get_lpnameids(struct cmd_context *cmd, int include_internal,
 	struct lbdcache_lpinfo *lpinfo;
 
 	jd_list_iterate_items(lpinfo, &_lpinfos) {
-                printf("in items loop ...\n");
 		if (!include_internal)
                         continue;
 		
@@ -74,10 +97,10 @@ int lbdcache_get_lpnameids(struct cmd_context *cmd, int include_internal,
 			printf("lpnameid_list allocation failed.\n");
 			return 0;
 		}
-		lpnl->lpid = strdup(lpinfo->lpid);
+		//lpnl->lpid = strdup(lpinfo->lpid);
 		lpnl->lp_name = strdup(lpinfo->lpname);
 
-		if (!lpnl->lpid || !lpnl->lp_name) {
+		if (!lpnl->lpid && !lpnl->lp_name) {
 			printf("lpnameid_list member allocation failed.\n");
 			return 0;
 		}
