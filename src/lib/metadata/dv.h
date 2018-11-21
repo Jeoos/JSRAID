@@ -15,9 +15,11 @@
 #include "libjraid.h"
 
 struct device;
+struct lbd_pool;
 
 struct disk_volume {
         struct device *dev;
+        struct lbd_pool *lp;
 };
 
 #endif

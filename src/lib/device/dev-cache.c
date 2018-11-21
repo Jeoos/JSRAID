@@ -174,7 +174,6 @@ struct device *dev_cache_get(const char *name)
 
 	if (!d)
                 return NULL;
-
 	return d;
 }
 

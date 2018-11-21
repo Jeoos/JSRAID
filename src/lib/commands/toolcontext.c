@@ -16,6 +16,7 @@
 #include "configure.h"
 #include "config.h"
 #include "lbdcache.h"
+#include "format-text.h"
 
 void destroy_toolcontext(struct cmd_context *cmd)
 {
@@ -57,6 +58,17 @@ static int _init_dev_cache(struct cmd_context *cmd)
         return 1;
 }
 
+static int _init_formats(struct cmd_context *cmd)
+{
+	struct format_type *fmt;
+
+	if (!(fmt = create_text_format(cmd)))
+	        return 0;
+
+	jd_list_add(&cmd->formats, &fmt->list);
+        return 1;
+}
+
 struct cmd_context *create_toolcontext(unsigned set_connections, unsigned set_filters)
 {
         struct cmd_context *cmd;
@@ -67,6 +79,8 @@ struct cmd_context *create_toolcontext(unsigned set_connections, unsigned set_fi
 	}
 
         strcpy(cmd->system_dir, DEFAULT_SYS_DIR);
+
+	jd_list_init(&cmd->formats);
 
 	if (*cmd->system_dir && !jd_create_dir(cmd->system_dir)) {
 		printf("Failed to create LBD system dir for metadata backups, config "
@@ -90,6 +104,9 @@ struct cmd_context *create_toolcontext(unsigned set_connections, unsigned set_fi
 		goto out;
 
 	if (!_init_dev_cache(cmd))
+		goto out;
+
+	if (!_init_formats(cmd))
 		goto out;
 
 	if (!lbdcache_init(cmd))

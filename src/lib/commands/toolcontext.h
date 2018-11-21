@@ -14,6 +14,7 @@
 
 #include <limits.h>
 #include "dev-cache.h"
+#include "jdstruct.h"
 
 struct cmd_context {
 	/*
@@ -31,6 +32,7 @@ struct cmd_context {
 
 	struct jd_config_tree *cft;
 
+	struct jd_list formats;			/* available formats */
 	char **argv;
 };
 

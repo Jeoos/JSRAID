@@ -12,7 +12,6 @@
 #include "format-text.h"
 #include "lbdcache.h"
 #include "toolcontext.h"
-
 #include <malloc.h>
 
 static int _text_dv_initialise(const struct format_type *fmt,
@@ -45,7 +44,7 @@ struct format_type *create_text_format(struct cmd_context *cmd)
 {
 	struct format_type *fmt;
 	if (!(fmt = malloc(sizeof(*fmt)))) {
-		printf("Failed to allocate text format type structure.\n");
+		printf("failed to allocate text format type structure.\n");
 		return NULL;
 	}
 	fmt->cmd = cmd;

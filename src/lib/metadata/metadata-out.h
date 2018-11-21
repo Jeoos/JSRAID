@@ -85,4 +85,6 @@ struct lbd_pool *lp_read(struct cmd_context *cmd, const char *lp_name,
 struct lbd_pool *_lp_read(struct cmd_context *cmd, const char *lp_name,
 			     const char *lpid, uint32_t read_flags);
 
+void add_dvl_to_lps(struct lbd_pool *lp, struct dv_list *dvl);
+
 #endif
