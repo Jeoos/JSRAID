@@ -19,6 +19,9 @@ struct lbd_pool;
 
 struct disk_volume {
         struct device *dev;
+	const struct format_type *fmt;
+
+	const char *lpname;
         struct lbd_pool *lp;
 };
 

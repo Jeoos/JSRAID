@@ -15,7 +15,9 @@
 #include "metadata.h"
 
 #define FMT_TEXT_NAME "lbd"
+#define LBD_LABEL "LBD  001"
 
 struct format_type *create_text_format(struct cmd_context *cmd);
+struct labeller *text_labeller_create(const struct format_type *fmt);
 
 #endif

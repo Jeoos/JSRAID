@@ -19,6 +19,7 @@ struct cmd_context;
 struct processing_handle {
         struct processing_handle *parent;
 	void *custom_handle;
+	void *handle_ptr;
 };
 
 struct processing_handle *init_processing_handle(struct cmd_context *cmd, struct processing_handle *parent_handle);

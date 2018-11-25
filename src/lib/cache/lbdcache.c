@@ -15,6 +15,7 @@
 #include "libjraid.h"
 #include "toolcontext.h"
 #include "metadata-out.h"
+#include "label.h"
 
 #define ID_LEN 32
 
@@ -28,7 +29,7 @@ struct lbdcache_info {
 	struct jd_list mdas;	/* list head for metadata areas */
 	struct jd_list das;	/* list head for data areas */
 	struct lbdcache_lpinfo *lpinfo;	/* NULL == unknown */
-	//struct label *label;
+	struct label *label;
 	const struct format_type *fmt;
 	struct device *dev;
 	uint64_t device_size;	/* bytes */
@@ -160,13 +161,17 @@ int lbdcache_foreach_dv(struct lbdcache_lpinfo *lpinfo,
 	return 1;
 }
 
-struct labeller {
-
-};
-
-struct lbdcache_info * _create_info(struct labeller *labeller, struct device *dev)
+struct lbdcache_info *_create_info(struct labeller *labeller, struct device *dev)
 {
         struct lbdcache_info *info;
+	struct label *label;
+
+        if (!labeller) 
+                goto next;
+
+	if (!(label = label_create(labeller)))
+		return NULL;
+next:
         if (!(info = malloc(sizeof(*info)))) {
                 printf("err: failed to alloc info.\n");
                 return NULL;
@@ -176,6 +181,35 @@ struct lbdcache_info * _create_info(struct labeller *labeller, struct device *de
         return info;
 }
 
+struct lbdcache_info *lbdcache_info_from_lpinfo(struct device *dev, 
+                        struct lbdcache_lpinfo *lpinfo)
+{
+        struct lbdcache_info *info;
+        jd_list_iterate_items(info, &lpinfo->infos) {
+                if (dev == info->dev)
+                        return info;
+        }
+        return NULL;
+}
+
+int _info_attach_label(struct lbdcache_info *info, struct label *label)
+{
+        struct labeller *labeller;
+
+        if (label) {
+               info->label = label;
+               return 1;
+        }
+        labeller = info->fmt->labeller;
+        if (!(label = label_create(labeller))) {
+                printf("err: to attach labeller.\n");
+		return NULL;
+        }
+
+        info->label = label;
+        return 1;
+}
+
 void _lpinfo_attach_info(struct lbdcache_lpinfo *lpinfo,
 				struct lbdcache_info *info)
 {
@@ -183,10 +217,24 @@ void _lpinfo_attach_info(struct lbdcache_lpinfo *lpinfo,
 		return;
 
 	info->lpinfo = lpinfo;
+        info->fmt = lpinfo->fmt;
 	jd_list_add(&lpinfo->infos, &info->list);
 }
 
 void lbdcache_set_dv(struct disk_volume *dv, struct lbdcache_info *info)
 {
         dv->dev = info->dev;
+}
+
+char *lbdcache_get_lpname(struct lbd_pool *lp)
+{
+        printf("lpname:%s\n", lp->lpinfo->lpname);
+        if(lp->lpinfo)
+                return lp->lpinfo->lpname;
+        return NULL;
+}
+
+struct label *lbdcache_get_label(struct lbdcache_info *info) 
+{
+        return info->label;
 }

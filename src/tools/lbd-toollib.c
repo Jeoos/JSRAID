@@ -57,13 +57,18 @@ static int _process_dvs_in_pool(struct cmd_context *cmd,
         /* get dv */
 	jd_list_iterate_items(dvl, &lp->dvs) {
                 dv = dvl->dv;
+                printf("dv->dev:%p\n", dv->dev);
         }
 
 	ret = process_single_dv(cmd, lp, dv, handle);
-        if (ret != ECMD_PROCESSED){
+        if (ret != ECMD_PROCESSED) {
                 printf("err handle .\n");
                 ret_max = ret;
         }
+
+        /* FIXME: it's unnecessary */
+        if (is_orphan_lp(lbdcache_get_lpname(lp)))
+                cmd->custom_ptr = lp;
 
         return ret_max;
 }
@@ -87,6 +92,7 @@ static int _process_dvs_in_pools(struct cmd_context *cmd,
 	uint32_t lockd_state = 0;
 	const char *lp_name;
 	const char *lp_uuid = NULL;
+        struct label *label = NULL;
 
 	jd_list_iterate_items(lpnl, all_lpnameids) {
                 lp_name = lpnl->lp_name;
@@ -95,7 +101,7 @@ static int _process_dvs_in_pools(struct cmd_context *cmd,
                 /* FIXME: should not be like this. */
                 /* set dv */
 	        if (is_orphan_lp(lp_name)) {
-	                jd_list_iterate_items(dil, arg_devices) {
+	                jd_list_iterate_items(dil, all_devices) {
                                 if (dil->dev) {
                                         dev = dil->dev;
                                 }
@@ -111,6 +117,7 @@ static int _process_dvs_in_pools(struct cmd_context *cmd,
 		                return NULL;
 
                         _lpinfo_attach_info(lpinfo, info);
+                        _info_attach_label(info, label);
                 }
 
                 /* get lp */
@@ -185,7 +192,6 @@ int process_each_dv(struct cmd_context *cmd, int argc, char **argv,
 	struct jd_list arg_devices;	/* device_id_list */
 	struct jd_list all_lpnameids;	/* lpnameid_list */
 	struct jd_list all_devices;	/* device_id_list */
-        struct dvcreate_params *dp = handle->custom_handle;
 
 	jd_list_init(&arg_dvnames);
 	jd_list_init(&arg_devices);
@@ -214,7 +220,7 @@ int process_each_dv(struct cmd_context *cmd, int argc, char **argv,
 
         /* FIXME: for arg_devices when needed */
 
-        _process_dvs_in_pools(cmd, read_flags, &all_lpnameids, &all_devices, &dp->arg_devices,
+        _process_dvs_in_pools(cmd, read_flags, &all_lpnameids, &all_devices, &arg_devices,
                     handle, process_single_dv);
 
 out:
@@ -248,8 +254,9 @@ static int _dvcreate_check_single(struct cmd_context *cmd,
                 break;
         }
 
-        if (!found)
+        if (!found) {
                 return 1;
+        }
 
         /* steps fixme: more check items */
 
@@ -308,14 +315,14 @@ int dvcreate_each_device(struct cmd_context *cmd,
 	jd_list_iterate_items_safe(dd, dd2, &dp->arg_create) {
                 /* disk volume initialise */
 		if (!(dv = dv_create(cmd, dd->dev, &dp->dva))) {
-			printf("Failed to setup physical volume \"%s\".\n", dv_name);
+			printf("failed to setup physical volume \"%s\".\n", dv_name);
 			jd_list_move(&dp->arg_fail, &dd->list);
 			continue;
 		}
 
                 /* write the metadata */
 		if (!dv_write(cmd, dv)) {
-			printf("Failed to write physical volume \"%s\".\n", dv_name);
+			printf("failed to write physical volume \"%s\".\n", dv_name);
 			jd_list_move(&dp->arg_fail, &dd->list);
 			continue;
 		}

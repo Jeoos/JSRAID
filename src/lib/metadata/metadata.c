@@ -14,6 +14,7 @@
 #include "device.h"
 #include "metadata.h"
 #include "lbdcache.h"
+#include "toolcontext.h"
 
 int is_orphan_lp(const char *lp_name)
 {
@@ -24,11 +25,32 @@ struct disk_volume *dv_create(struct cmd_context *cmd,
 				  struct device *dev,
 				  struct dv_create_args *dva)
 {
+	const struct format_type *fmt = cmd->fmt;
+        struct dv_list *dvl;
+        struct disk_volume *dv = NULL;
+        struct lbd_pool *lp = (struct lbd_pool *)cmd->custom_ptr;
+
+        jd_list_iterate_items(dvl, &lp->dvs)
+                dv = dvl->dv; 
+
+        dv->fmt = fmt;
+        dv->lpname = fmt->orphan_lp_name;
+
+	if (!fmt->ops->dv_initialise(fmt, dva, dv)) {
+		printf("format-specific initialisation of physical volume \
+                                device failed.");
+		goto bad;
+	}
+        return dv;
+bad:
         return NULL;
 }
 
 int dv_write(struct cmd_context *cmd, struct disk_volume *dv)
 {
+	if (!dv->fmt->ops->dv_write(dv->fmt, dv))
+		return 0;
+
         return 1;
 }
 
@@ -128,6 +150,7 @@ static struct lbd_pool *_lp_read_orphans(struct cmd_context *cmd,
 		return NULL;
 
         lp = fmt->orphan_lp;
+        lp->lpinfo = lpinfo;
         jd_list_init(&lp->dvs);
 
         transf.cmd = cmd;
@@ -156,7 +179,7 @@ struct lbd_pool *lp_read(struct cmd_context *cmd, const char *lp_name,
 {
         struct lbd_pool *lp;
         lp = _lp_read(cmd, lp_name, lpid, read_flags);
-        if (!lp){
+        if (!lp) {
                 printf("err read lp.\n");
                 return NULL;
         }

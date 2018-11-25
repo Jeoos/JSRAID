@@ -24,6 +24,8 @@ struct lbdcache_info;
 struct disk_volume;
 struct labeller;
 struct device;
+struct lbd_pool;
+struct label;
 
 int lbdcache_init(struct cmd_context *cmd);
 int lbdcache_get_lpnameids(struct cmd_context *cmd, int include_internal,
@@ -38,8 +40,12 @@ struct lbdcache_lpinfo *lbdcache_lpinfo_from_lpname(const char *lpname, const ch
 int lbdcache_foreach_dv(struct lbdcache_lpinfo *lpinfo,
 			int (*fun)(struct lbdcache_info *, void *),
 			void *transf);
-struct lbdcache_info * _create_info(struct labeller *labeller, struct device *dev);
+struct lbdcache_info *_create_info(struct labeller *labeller, struct device *dev);
+struct lbdcache_info *lbdcache_info_from_lpinfo(struct device *dev, struct lbdcache_lpinfo *lpinfo);
 void _lpinfo_attach_info(struct lbdcache_lpinfo *lpinfo,
 				struct lbdcache_info *info);
+int _info_attach_label(struct lbdcache_info *info, struct label *label);
 void lbdcache_set_dv(struct disk_volume *dv, struct lbdcache_info *info);
+char *lbdcache_get_lpname(struct lbd_pool *lp);
+struct label *lbdcache_get_label(struct lbdcache_info *info);
 #endif

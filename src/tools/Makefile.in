@@ -31,7 +31,7 @@ GENTARGETS =\
 	cmds.h \
 	command-lines-input.h 
 
-LBDLIBS = -llbd-base -ljsraid
+LBDLIBS = -llbd-base -ljsraid -laio
 DISTCLEAN_TARGETS += $(GENTARGETS)
 
 include $(top_builddir)/make.build

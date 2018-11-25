@@ -66,6 +66,7 @@ static int _init_formats(struct cmd_context *cmd)
 	        return 0;
 
 	jd_list_add(&cmd->formats, &fmt->list);
+        cmd->fmt = fmt;
         return 1;
 }
 

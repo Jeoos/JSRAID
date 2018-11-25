@@ -15,13 +15,19 @@
 #ifndef __METADATA_OUT_H__
 #define __METADATA_OUT_H__
 
+#define SECTOR_SHIFT 9L
+#define SECTOR_SIZE ( 1L << SECTOR_SHIFT )
+
 struct cmd_context;
 struct format_handler;
+struct labeller;
+
 struct format_type {
 	struct jd_list list;
 	struct cmd_context *cmd;
 	struct format_handler *ops;
 	struct jd_list mda_ops; /* list of permissible mda ops. */
+	struct labeller *labeller;
 	const char *name;
 	const char *orphan_lp_name;
 	struct lbd_pool *orphan_lp; /* only one ever exists. */

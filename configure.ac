@@ -74,6 +74,10 @@ dnl -- Check for header files.
 
 AC_HEADER_DIRENT
 
+AC_CHECK_HEADERS([assert.h dirent.h errno.h fcntl.h libaio.h stdio.h \
+    stdlib.h string.h sys/file.h sys/ioctl.h sys/stat.h sys/types.h \
+    time.h unistd.h], , [AC_MSG_ERROR(bailing out)])
+
 ################################################################################
 dnl -- Check for typedefs, structures.
 

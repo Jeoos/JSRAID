@@ -29,11 +29,13 @@ struct cmd_context {
 	struct command *command;
 	char system_dir[PATH_MAX];
 	char dev_dir[PATH_MAX];
+	const struct format_type *fmt;		/* current format to use by default */
 
 	struct jd_config_tree *cft;
 
 	struct jd_list formats;			/* available formats */
 	char **argv;
+        void *custom_ptr;
 };
 
 struct cmd_context *create_toolcontext(unsigned set_connections, unsigned set_filters);
