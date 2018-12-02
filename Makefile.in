@@ -21,7 +21,7 @@ ifeq ($(MAKECMDGOALS),distclean)
 	SUBDIRS = src/libjraid src/lib src/tools
 endif
 
-DISTCLEAN_TARGETS += config.log config.status make.tmpl \
+DISTCLEAN_TARGETS += config.log config.status make.build \
 		     src/include/configure.h \
 		     src/include/lbd-version.h
 
