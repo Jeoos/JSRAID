@@ -64,6 +64,7 @@ void jd_hash_iter(struct jd_hash_table *t, jd_hash_iterate_fn f);
 void jd_hash_wipe(struct jd_hash_table *t);
 
 unsigned int jd_list_size(const struct jd_list *head);
+struct jd_list *jd_list_first(const struct jd_list *head);
 
 #define jd_list_struct_base(v, t, head) \
     ((t *)((const char *)(v) - (const char *)&((t *) 0)->head))

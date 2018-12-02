@@ -12,6 +12,7 @@
 #ifndef __DEVICE_H__
 #define __DEVICE_H__
 
+#include "jdstruct.h"
 #include <stdint.h>
 #include <sys/types.h> 
 
@@ -25,6 +26,7 @@
 struct dev_iter;
 
 struct device {
+	struct jd_list aliases;	/* struct jd_str_list for dev name */
 	dev_t dev;
 
 	int fd;

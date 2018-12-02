@@ -24,6 +24,10 @@ static int _text_initialise_label(struct labeller *l __attribute__((unused)),
 
 static int _text_write(struct label *label, void *buf)
 {
+	struct label_header *lh = (struct label_header *) buf;
+
+	strncpy(label->type, LBD_LABEL, sizeof(label->type));
+	strncpy((char *)lh->type, label->type, sizeof(label->type));
         return 1;
 }
 

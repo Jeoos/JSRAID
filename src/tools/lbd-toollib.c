@@ -13,6 +13,7 @@
 #include "common.h"
 #include "lbdcache.h"
 #include "dev-cache.h"
+#include "label.h"
 
 struct device_id_list {
 	struct jd_list list;
@@ -110,11 +111,11 @@ static int _process_dvs_in_pools(struct cmd_context *cmd,
                         info = _create_info(NULL, dev);
                         if (!info) {
                                 printf("err: info get failed.\n");
-                                return NULL;
+                                return 0;
                         }
                                 
 	                if (!(lpinfo = lbdcache_lpinfo_from_lpname(lp_name, NULL)))
-		                return NULL;
+		                return 0;
 
                         _lpinfo_attach_info(lpinfo, info);
                         _info_attach_label(info, label);
@@ -300,8 +301,10 @@ int dvcreate_each_device(struct cmd_context *cmd,
 		jd_list_add(&dp->arg_devices, &dd->list);
 	}
 
-        jd_list_iterate_items(dd, &dp->arg_devices)
+        jd_list_iterate_items(dd, &dp->arg_devices) {
 		dd->dev = dev_cache_get(dd->name);
+                label_dev_open(dd->dev);
+        }
 
         /* process each disk volume */
 	process_each_dv(cmd, 0, NULL, 1, 0, handle,

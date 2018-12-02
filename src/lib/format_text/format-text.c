@@ -31,7 +31,7 @@ static int _text_dv_write(const struct format_type *fmt, struct disk_volume *dv)
 
         info = lbdcache_info_from_lpinfo(dv->dev, lpinfo);
         if (!info)
-                return NULL;
+                return 0;
 
 	label = lbdcache_get_label(info);
         /* label write */

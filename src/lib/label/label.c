@@ -11,9 +11,15 @@
 
 #include "label.h"
 #include "bcache.h"
+#include "jdstruct.h"
 
 #include <stdbool.h>
 #include <malloc.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 struct bcache *scan_bcache;
 
@@ -95,4 +101,46 @@ static int _setup_bcache(int cache_blocks)
 	}
 
 	return 1;
+}
+
+int label_dev_open(struct device *dev)
+{
+	struct jd_list *name_list;
+	struct jd_str_list *name_sl;
+	const char *name;
+	int flags = 0;
+	int fd;
+
+	if (!dev)
+		return 0;
+
+	if (dev->bcache_fd > 0) {
+                printf("dev already open with fd %d\n", dev->bcache_fd);
+                return 0;
+        }
+
+	if (!(name_list = jd_list_first(&dev->aliases))) {
+		printf("device open %d:%d has no path names.",
+			  (int)MAJOR(dev->dev), (int)MINOR(dev->dev));
+
+                return 0;
+        }
+
+	name_sl = jd_list_item(name_list, struct jd_str_list);
+	name = name_sl->str;
+
+	//flags |= O_DIRECT;
+	//flags |= O_NOATIME;
+
+	flags |= O_RDWR;
+
+	fd = open(name, flags, 0777);
+	if (fd < 0) {
+                /* FIXME: for retry */
+                printf("err: to get dev fd.\n");
+                return 0;
+        }
+	dev->bcache_fd = fd;
+
+        return 1;
 }

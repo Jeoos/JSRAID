@@ -69,6 +69,7 @@ static int _insert_dev(const char *path, dev_t d)
 	struct device *dev;
 	struct device *dev_by_devt;
 	struct device *dev_by_path;
+        struct jd_str_list *alias;
 
 	dev_by_devt = (struct device *) btree_lookup(_cache.devices, (uint32_t) d);
 	dev_by_path = (struct device *) jd_hash_lookup(_cache.names, path);
@@ -84,6 +85,15 @@ static int _insert_dev(const char *path, dev_t d)
                         (int)MAJOR(d), (int)MINOR(d), path);
 
 		dev = _dev_create(d);
+
+                alias = malloc(sizeof(*alias));
+                if (!alias) {
+                        return 0;
+                        printf("err: failed to alloc alias.\n");
+                }
+                alias->str = strdup(path);
+                jd_list_init(&dev->aliases);
+	        jd_list_add(&dev->aliases, &alias->list);
 
 		if (!(btree_insert(_cache.devices, (uint32_t) d, dev))) {
 			printf("couldn't insert device into binary tree.\n");

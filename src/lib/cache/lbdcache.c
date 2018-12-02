@@ -203,7 +203,7 @@ int _info_attach_label(struct lbdcache_info *info, struct label *label)
         labeller = info->fmt->labeller;
         if (!(label = label_create(labeller))) {
                 printf("err: to attach labeller.\n");
-		return NULL;
+		return 0;
         }
 
         info->label = label;

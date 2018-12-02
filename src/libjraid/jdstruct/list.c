@@ -84,3 +84,8 @@ unsigned int jd_list_size(const struct jd_list *head)
 
 	return s;
 }
+
+struct jd_list *jd_list_first(const struct jd_list *head)
+{
+	return (jd_list_empty(head) ? NULL : head->n);
+}
