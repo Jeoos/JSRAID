@@ -294,6 +294,7 @@ static bool _sync_issue(struct io_engine *ioe, enum dir d, int fd,
         uint64_t len = (se - sb) * 512, where;
 	struct sync_engine *e = _to_sync(ioe);
 	struct sync_io *io = malloc(sizeof(*io));
+        printf("in _sync_issue.\n");
 	if (!io) {
 		printf("unable to allocate sync_io");
         	return false;
@@ -311,8 +312,10 @@ static bool _sync_issue(struct io_engine *ioe, enum dir d, int fd,
         	do {
                 	if (d == DIR_READ)
                                 r = read(fd, data, len);
-                        else
+                        else {
+                                printf("core write.\n");
                                 r = write(fd, data, len);
+                        }
 
         	} while ((r < 0) && ((r == EINTR) || (r == EAGAIN)));
 
@@ -330,7 +333,6 @@ static bool _sync_issue(struct io_engine *ioe, enum dir d, int fd,
         	free(io);
         	return false;
 	}
-
 
 	jd_list_add(&e->complete, &io->list);
 	io->context = context;
@@ -864,8 +866,12 @@ static void _preemptive_writeback(struct bcache *cache)
 	 * nr_clean instead?
          */
 	unsigned nr_available = cache->nr_cache_blocks - (cache->nr_dirty - cache->nr_io_pending);
-	if (nr_available < (WRITEBACK_LOW_THRESHOLD_PERCENT * cache->nr_cache_blocks / 100))
+        /*printf("nr_available=%u (WRITEBACK_LOW_THRESHOLD_PERCENT * cache->nr_cache_blocks / 100)=%u\n", \
+               nr_available, (WRITEBACK_LOW_THRESHOLD_PERCENT * cache->nr_cache_blocks / 100));
+        */
+        //if (nr_available < (WRITEBACK_LOW_THRESHOLD_PERCENT * cache->nr_cache_blocks / 100)) {
 		_writeback(cache, (WRITEBACK_HIGH_THRESHOLD_PERCENT * cache->nr_cache_blocks / 100) - nr_available);
+        //}
 
 }
 
@@ -1034,7 +1040,7 @@ void bcache_put(struct block *b)
 {
 	_put_ref(b);
 
-	if (_test_flags(b, BF_DIRTY))
+        if (_test_flags(b, BF_DIRTY))
 		_preemptive_writeback(b->cache);
 }
 
@@ -1046,6 +1052,7 @@ bool bcache_flush(struct bcache *cache)
 	 * try and rewrite everything.
          */
 	jd_list_splice(&cache->dirty, &cache->errored);
+        printf("7777\n");
 
 	while (!jd_list_empty(&cache->dirty)) {
 		struct block *b = jd_list_item(_list_pop(&cache->dirty), struct block);

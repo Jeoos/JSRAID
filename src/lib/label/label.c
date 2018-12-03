@@ -13,13 +13,27 @@
 #include "bcache.h"
 #include "jdstruct.h"
 
+
 #include <stdbool.h>
 #include <malloc.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+
+#ifndef __USE_GNU
+#define __USE_GNU
+#endif
 #include <fcntl.h>
-#include <unistd.h>
+
+#ifndef __USE_GNU
+#ifndef O_DIRECT
+#define O_DIRECT __O_DIRECT 
+#endif
+
+#ifndef O_NOATIME
+#define O_NOATIME __O_NOATIME
+#endif
+#endif
 
 struct bcache *scan_bcache;
 
@@ -32,7 +46,6 @@ bool dev_write_bytes(struct device *dev, uint64_t start, size_t len, void *data)
                 printf("err: bcache write bytes, return false.\n");
                 return false;
         }
-        printf("return true.\n");
         return true;
 }
 
@@ -62,10 +75,11 @@ struct label *label_create(struct labeller *labeller)
 int label_write(struct device *dev, struct label *label)
 {
 	char buf[LABEL_SIZE] __attribute__((aligned(8)));
-	//struct label_header *lh = (struct label_header *) buf;
+	struct label_header *lh = (struct label_header *) buf;
 
 	if (!(label->labeller->ops->write)(label, buf))
 		return 0;
+        printf("lh->type = %s.\n", lh->type);
 
 	if (!dev_write_bytes(dev, label->sector << SECTOR_SHIFT, LABEL_SIZE, buf)) {
 		printf("failed to write label.\n");
@@ -129,8 +143,9 @@ int label_dev_open(struct device *dev)
 	name_sl = jd_list_item(name_list, struct jd_str_list);
 	name = name_sl->str;
 
+        /* diff from env */
 	//flags |= O_DIRECT;
-	//flags |= O_NOATIME;
+	flags |= O_NOATIME;
 
 	flags |= O_RDWR;
 
