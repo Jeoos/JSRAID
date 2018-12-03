@@ -92,7 +92,7 @@ static bool _update_bytes(struct updater *u, int fd, uint64_t start, size_t len)
         struct bcache *cache = u->cache;
 	block_address bb, be;
 	uint64_t block_size = bcache_block_sectors(cache) << SECTOR_SHIFT;
-        //printf("start = %lu block_size = %d\n", start, block_size);
+        //printf("start = %lu block_size = %d len = %d \n", start, block_size, len);
 	uint64_t block_offset = start % block_size;
 	uint64_t nr_whole;
 	byte_range_to_block_range(cache, start, len, &bb, &be);
@@ -139,7 +139,6 @@ static bool _write_partial(struct updater *u, int fd, block_address bb,
 
 	if (!bcache_get(u->cache, fd, bb, GF_DIRTY, &b))
 		return false;
-
 	memcpy(((unsigned char *) b->data) + offset, u->data, len);
 	u->data = ((unsigned char *) u->data) + len;
 
