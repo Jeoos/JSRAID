@@ -274,8 +274,7 @@ int dvcreate_each_device(struct cmd_context *cmd,
 {
 	struct dvcreate_device *dd, *dd2;
 	struct disk_volume *dv;
-	//struct dv_list *dvl;
-	//struct device_list *devl;
+	struct dv_list *dvl;
 	const char *dv_name = NULL;
 	unsigned i;
 
@@ -303,7 +302,7 @@ int dvcreate_each_device(struct cmd_context *cmd,
 
         jd_list_iterate_items(dd, &dp->arg_devices) {
 		dd->dev = dev_cache_get(dd->name);
-                label_dev_open(dd->dev);
+                label_dev_open(dd->dev); 
         }
 
         /* process each disk volume */
@@ -316,6 +315,10 @@ int dvcreate_each_device(struct cmd_context *cmd,
 		jd_list_splice(&dp->arg_create, &dp->arg_process);
 
 	jd_list_iterate_items_safe(dd, dd2, &dp->arg_create) {
+                if(!(dvl = malloc(sizeof(*dvl)))) {
+                        printf("err: failed to alloc dvl.\n");
+                        continue;
+                }
                 /* disk volume initialise */
 		if (!(dv = dv_create(cmd, dd->dev, &dp->dva))) {
 			printf("failed to setup physical volume \"%s\".\n", dv_name);
@@ -329,6 +332,8 @@ int dvcreate_each_device(struct cmd_context *cmd,
 			jd_list_move(&dp->arg_fail, &dd->list);
 			continue;
 		}
+                dvl->dv = dv;
+                jd_list_add(&dp->dvs, &dvl->list);
         }
         return 1;
 }

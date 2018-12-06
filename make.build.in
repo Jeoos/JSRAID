@@ -35,6 +35,7 @@ SORT = @SORT@
 WC = @WC@
 AR = @AR@
 RM = rm -f
+CP = /usr/bin/cp -a
 
 CFLAGS ?= @COPTIMISE_FLAG@ @CFLAGS@
 LDFLAGS ?= @LDFLAGS@
@@ -135,6 +136,12 @@ ifneq (,$(firstword $(DISTCLEAN_DIRS)))
 	$(RM) -r $(DISTCLEAN_DIRS)
 endif
 	$(RM) $(DISTCLEAN_TARGETS) Makefile
+
+install:
+	$(Q) $(CP) src/libjraid/libjsraid.so /usr/lib/
+
+uninstall:
+	$(Q) $(RM) /usr/lib/libjsraid.so 2>/dev/null
 
 .PHONY: all distclean clean cleandir jsraid
 .PHONY: $(SUBDIRS) $(SUBDIRS.jsraid) $(SUBDIRS.clean) $(SUBDIRS.distclean)

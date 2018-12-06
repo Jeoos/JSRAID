@@ -1,1 +1,10 @@
 # jraid - blah blah ...
+
+# install
+autoconf
+./configure
+make install
+
+# uninstall
+make uninstall
+make clean or make distclean

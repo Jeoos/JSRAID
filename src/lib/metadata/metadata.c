@@ -11,10 +11,13 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <malloc.h>
 #include "device.h"
 #include "metadata.h"
 #include "lbdcache.h"
 #include "toolcontext.h"
+
+#define DEFAULT_EXTENT_SIZE 4096
 
 int is_orphan_lp(const char *lp_name)
 {
@@ -54,15 +57,17 @@ int dv_write(struct cmd_context *cmd, struct disk_volume *dv)
         return 1;
 }
 
-void dv_defaults_init(struct dvcreate_params *pp)
+void dv_defaults_init(struct dvcreate_params *dp)
 {
-        memset(pp, 0, sizeof(struct dvcreate_params));
+        memset(dp, 0, sizeof(struct dvcreate_params));
 
-	jd_list_init(&pp->arg_devices);
-	jd_list_init(&pp->arg_create);
-	jd_list_init(&pp->arg_remove);
-	jd_list_init(&pp->arg_fail);
-	jd_list_init(&pp->arg_process);
+	jd_list_init(&dp->arg_devices);
+	jd_list_init(&dp->arg_create);
+	jd_list_init(&dp->arg_remove);
+	jd_list_init(&dp->arg_fail);
+	jd_list_init(&dp->arg_process);
+	jd_list_init(&dp->arg_process);
+	jd_list_init(&dp->dvs);
 }
 
 int get_lpnameids(struct cmd_context *cmd, struct jd_list *lpnameids,
@@ -184,4 +189,62 @@ struct lbd_pool *lp_read(struct cmd_context *cmd, const char *lp_name,
                 return NULL;
         }
         return lp; 
+}
+
+struct lbd_pool *lp_create(struct cmd_context *cmd, const char *lp_name)
+{
+	struct lbd_pool *lp;
+	struct format_instance_ctx fic = {
+		.type = FMT_INSTANCE_MDAS | FMT_INSTANCE_AUX_MDAS,
+		.context.lp_ref.lp_name = lp_name
+	};
+	struct format_instance *fid;
+
+	if (!(lp = alloc_lp("lp_create", cmd, lp_name)))
+		goto bad;
+
+	lp->extent_size = DEFAULT_EXTENT_SIZE * 2;
+	lp->system_id = NULL;
+	lp->max_lbd = 0;
+	lp->max_dv = 0;
+	lp->mda_copies = 0;
+
+	if (!(fid = cmd->fmt->ops->create_instance(cmd->fmt, &fic))) {
+		printf("err: failed to create format instance.\n");
+		goto bad;
+	}
+
+bad:
+        return NULL;
+}
+
+struct format_instance *alloc_fid(const struct format_type *fmt,
+				  const struct format_instance_ctx *fic)
+{
+	struct format_instance *fid;
+
+	if (!(fid = malloc(sizeof(*fid)))) {
+		printf("err: couldn't allocate format_instance object.\n");
+		goto bad;
+	}
+
+	fid->ref_count = 1;
+	fid->type = fic->type;
+	fid->fmt = fmt;
+
+	jd_list_init(&fid->metadata_areas_in_use);
+	jd_list_init(&fid->metadata_areas_ignored);
+
+	return fid;
+
+bad:
+	free(fid);
+	return NULL;
+}
+
+int fid_add_mda(struct format_instance *fid, struct metadata_area *mda,
+		 const char *key, size_t key_len, const unsigned sub_key)
+{
+        /* FIXME: */
+        return 1;
 }

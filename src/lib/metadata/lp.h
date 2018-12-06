@@ -20,6 +20,14 @@ struct lbd_pool {
 	struct cmd_context *cmd;
 	struct lbdcache_lpinfo *lpinfo;
 	struct jd_list dvs;
+
+	const char *system_id;
+
+	uint32_t extent_size;
+	uint32_t max_lbd;
+	uint32_t max_dv;
+
+	uint32_t mda_copies; /* target number of mdas for this LP */
 };
 struct lbd_pool *alloc_lp(const char *pool_name, struct cmd_context *cmd,
 			      const char *lp_name);

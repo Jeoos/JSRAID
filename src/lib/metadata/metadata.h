@@ -14,6 +14,8 @@
 
 #include "metadata-out.h"
 
+struct cached_lp_fmtdata;
+
 struct metadata_area {
 	struct jd_list list;
 	struct metadata_area_ops *ops;
@@ -23,12 +25,26 @@ struct metadata_area {
 
 struct metadata_area_ops {
 	struct jd_list list;
-	struct lbd_pool *(*lp_read) (struct format_instance *fi,
-					 const char *vg_name,
+	struct lbd_pool *(*lp_read) (struct format_instance * fi,
+					 const char *lp_name,
 					 struct metadata_area * mda,
+					 struct cached_lp_fmtdata **lp_fmtdata,
 					 unsigned *use_previous_lp);
+
 	int (*lp_write) (struct format_instance *fid, struct lbd_pool *lp,
 			 struct metadata_area *mda);
+};
+
+struct format_instance_ctx {
+	uint32_t type;
+	union {
+		const char *dv_id;
+		struct {
+			const char *lp_name;
+			const char *lp_id;
+		} lp_ref;
+		void *private;
+	} context;
 };
 
 struct format_handler {
@@ -43,7 +59,15 @@ struct format_handler {
 	int (*dv_write) (const struct format_type * fmt,
 			 struct disk_volume* dv);
 
+	struct format_instance *(*create_instance) (const struct format_type *fmt,
+						const struct format_instance_ctx *fic);
+
 	void (*destroy) (struct format_type * fmt);
 };
 
+struct format_instance *alloc_fid(const struct format_type *fmt,
+				  const struct format_instance_ctx *fic);
+
+int fid_add_mda(struct format_instance *fid, struct metadata_area *mda,
+		 const char *key, size_t key_len, const unsigned sub_key);
 #endif

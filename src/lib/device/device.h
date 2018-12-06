@@ -48,4 +48,15 @@ struct device {
 	char _padding[7];
 };
 
+struct device_list {
+        struct jd_list list;
+        struct device *dev;
+};
+
+struct device_area {
+	struct device *dev;
+	uint64_t start;		/* Bytes */
+	uint64_t size;		/* Bytes */
+};
+
 #endif

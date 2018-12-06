@@ -1076,6 +1076,7 @@ static bool _invalidate_block(struct bcache *cache, struct block *b)
 {
 	if (!b)
 		return true;
+        printf("in _invalidate_block\n");
 
 	if (_test_flags(b, BF_IO_PENDING))
 		_wait_specific(b);

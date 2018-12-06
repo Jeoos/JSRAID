@@ -15,6 +15,8 @@
 int lbdpool(struct cmd_context *cmd, int argc, char **argv)
 {
         int rt;
+        struct lbd_pool *lp;
+	struct lpcreate_params lpp_new;
 	struct processing_handle *handle;
 	struct dvcreate_params dp;
         printf("in lbdpool argc:%d argv:%s\n", argc, argv[2]);
@@ -24,6 +26,7 @@ int lbdpool(struct cmd_context *cmd, int argc, char **argv)
         }
 
         /* set the default pool param vaules.*/
+        dv_defaults_init(&dp);
 
 	dp.dv_count = argc;
 	dp.dv_names = argv;
@@ -36,5 +39,12 @@ int lbdpool(struct cmd_context *cmd, int argc, char **argv)
 	if (!dvcreate_each_device(cmd, handle, &dp))
 		rt = ECMD_FAILED;
 
+        if (!(lp = lp_create(cmd, lpp_new.lp_name))) {
+                printf("err: failed to create lp.\n");
+		goto bad;
+        }
+
         return rt;
+bad:
+	return ECMD_FAILED;
 }

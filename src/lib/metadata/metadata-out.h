@@ -18,6 +18,10 @@
 #define SECTOR_SHIFT 9L
 #define SECTOR_SIZE ( 1L << SECTOR_SHIFT )
 
+#define FMT_INSTANCE_MDAS		0x00000002U
+#define FMT_INSTANCE_AUX_MDAS		0x00000004U
+#define FMT_INSTANCE_PRIVATE_MDAS	0x00000008U
+
 struct cmd_context;
 struct format_handler;
 struct labeller;
@@ -31,6 +35,7 @@ struct format_type {
 	const char *name;
 	const char *orphan_lp_name;
 	struct lbd_pool *orphan_lp; /* only one ever exists. */
+	void *private;
 };
 
 struct lpnameid_list {
@@ -67,10 +72,31 @@ struct dvcreate_params {
 	struct jd_list arg_remove;
 	struct jd_list arg_fail;        /* dvcreate_device, failed to create */
 	struct jd_list arg_process;        /* dvcreate_device, for create process */
+
+        struct jd_list dvs;
+};
+
+struct lpcreate_params {
+	const char *lp_name;
+	uint32_t extent_size;
+	size_t max_dv;
+	size_t max_lbd;
+	uint32_t lpmetadatacopies;
+	const char *system_id;
 };
 
 struct format_instance {
+	unsigned ref_count;	/* refs to this fid from LP and DV structs */
 
+	uint32_t type;
+	const struct format_type *fmt;
+
+	/* FIXME: try to use the index only. remove these lists. */
+	struct jd_list metadata_areas_in_use;
+	struct jd_list metadata_areas_ignored;
+	struct jd_hash_table *metadata_areas_index;
+
+	void *private;
 };
 
 int is_orphan_lp(const char *lp_name);
@@ -92,5 +118,7 @@ struct lbd_pool *_lp_read(struct cmd_context *cmd, const char *lp_name,
 			     const char *lpid, uint32_t read_flags);
 
 void add_dvl_to_lps(struct lbd_pool *lp, struct dv_list *dvl);
+
+struct lbd_pool *lp_create(struct cmd_context *cmd, const char *lp_name);
 
 #endif
