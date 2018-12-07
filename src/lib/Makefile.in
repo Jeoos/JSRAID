@@ -27,6 +27,7 @@ SOURCES = \
 	format_text/format-text.c \
 	format_text/text-label.c \
 	label/label.c \
+	misc/crc.c
 
 LIB_NAME = liblbd-base
 LIB_STATIC = $(LIB_NAME).a

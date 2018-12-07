@@ -13,6 +13,8 @@
 #include "lbdcache.h"
 #include "toolcontext.h"
 #include "label.h"
+#include "crc.h"
+#include "xlate.h"
 #include <malloc.h>
 #include <string.h>
 
@@ -107,10 +109,104 @@ static struct metadata_area_ops _metadata_text_raw_ops = {
 	.lp_write = _lp_write_raw
 };
 
+static void _xlate_mdah(struct mda_header *mdah)
+{
+	struct raw_locn *rl;
+
+	mdah->version = xlate32(mdah->version);
+	mdah->start = xlate64(mdah->start);
+	mdah->size = xlate64(mdah->size);
+
+	rl = &mdah->raw_locns[0];
+	while (rl->offset) {
+		rl->checksum = xlate32(rl->checksum);
+		rl->offset = xlate64(rl->offset);
+		rl->size = xlate64(rl->size);
+		rl++;
+	}
+}
+
+static int _raw_read_mda_header(struct mda_header *mdah, struct device_area *dev_area, int primary_mda)
+{
+	if (!dev_read_bytes(dev_area->dev, dev_area->start, MDA_HEADER_SIZE, mdah)) {
+                printf("err: failed to read metadata area header on %s at %llu",
+			  dev_name(dev_area->dev), (unsigned long long)dev_area->start);
+		return 0;
+	}
+
+	if (mdah->checksum_xl != xlate32(calc_crc(INITIAL_CRC, (uint8_t *)mdah->magic,
+						  MDA_HEADER_SIZE -
+						  sizeof(mdah->checksum_xl)))) {
+                printf("err: incorrect checksum in metadata area header on %s at %llu",
+			  dev_name(dev_area->dev), (unsigned long long)dev_area->start);
+		return 0;
+	}
+
+	_xlate_mdah(mdah);
+
+	if (strncmp((char *)mdah->magic, FMTT_MAGIC, sizeof(mdah->magic))) {
+                printf("err: wrong magic number in metadata area header on %s at %llu",
+			  dev_name(dev_area->dev), (unsigned long long)dev_area->start);
+		return 0;
+	}
+
+	if (mdah->version != FMTT_VERSION) {
+                printf("err: incompatible version %u metadata area header on %s at %llu",
+			  mdah->version,
+			  dev_name(dev_area->dev), (unsigned long long)dev_area->start);
+		return 0;
+	}
+
+	if (mdah->start != dev_area->start) {
+                printf("err: incorrect start sector %llu in metadata area header on %s at %llu",
+			  (unsigned long long)mdah->start,
+			  dev_name(dev_area->dev), (unsigned long long)dev_area->start);
+		return 0;
+	}
+        
+        return 1;
+}
+
+struct mda_header *raw_read_mda_header(const struct format_type *fmt,
+				       struct device_area *dev_area, int primary_mda)
+{
+	struct mda_header *mdah;
+
+	if (!(mdah = malloc(MDA_HEADER_SIZE))) {
+                printf("err: struct mda_header allocation failed.\n");
+		return NULL;
+	}
+
+	if (!_raw_read_mda_header(mdah, dev_area, primary_mda)) {
+		free(mdah);
+		return NULL;
+	}
+
+	return mdah;
+}
+
+static struct raw_locn *_read_metadata_location_lp(struct device_area *dev_area,
+				       struct mda_header *mdah, int primary_mda,
+				       const char *lpname,
+				       int *precommitted)
+{
+        return NULL;
+}
+
 static int _raw_holds_lpname(struct format_instance *fid,
 			     struct device_area *dev_area, const char *lpname)
 {
-        return 1;
+	int r = 0;
+	int noprecommit = 0;
+	struct mda_header *mdah;
+
+	if (!(mdah = raw_read_mda_header(fid->fmt, dev_area, 0)))
+		return 0;
+
+	if (_read_metadata_location_lp(dev_area, mdah, 0, lpname, &noprecommit))
+		r = 1;
+
+        return r;
 }
 
 static int _create_lp_text_instance(struct format_instance *fid,
@@ -138,12 +234,12 @@ static int _create_lp_text_instance(struct format_instance *fid,
                 /* FIXME: type FMT_INSTANCE_PRIVATE_MDAS */
         } else {
                 /* FIXME: FMT_INSTANCE_AUX_MDAS */ 
-		lp_name = fic->context.lp_ref.lp_name;
 		lp_id = fic->context.lp_ref.lp_id;
+		lp_name = fic->context.lp_ref.lp_name;
 
 		if (!(fid->metadata_areas_index = jd_hash_create(128))) {
                         printf("err: couldn't create metadata index for format "
-				  "instance of LP %s.", lp_name);
+                                  "instance of LP %s(id:%s).", lp_name, lp_id);
 			return 0;
                 }
 	        if (type & FMT_INSTANCE_AUX_MDAS) {

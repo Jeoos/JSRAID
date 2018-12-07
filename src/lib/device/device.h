@@ -59,4 +59,6 @@ struct device_area {
 	uint64_t size;		/* Bytes */
 };
 
+const char *dev_name(const struct device *dev);
+
 #endif

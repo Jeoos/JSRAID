@@ -18,6 +18,10 @@
 #define FMT_TEXT_NAME "lbd"
 #define LBD_LABEL "LBD  001"
 
+#define FMTT_MAGIC "\040\114\126\115\062\040\170\133\065\101\045\162\060\116\052\076"
+#define FMTT_VERSION 1
+#define MDA_HEADER_SIZE 512
+
 struct mda_lists {
 	struct jd_list dirs;
 	struct jd_list raws;
@@ -45,7 +49,23 @@ struct mda_context {
 	struct raw_locn rlocn;	/* Store inbetween write and commit */
 };
 
+/* on disk */
+/* ttructure size limited to one sector */
+struct mda_header {
+	uint32_t checksum_xl;	/* checksum of rest of mda_header */
+	int8_t magic[16];	/* to aid scans for metadata */
+	uint32_t version;
+	uint64_t start;		/* absolute start byte of mda_header */
+	uint64_t size;		/* size of metadata area */
+
+	struct raw_locn raw_locns[0];	/* NULL-terminated list */
+} __attribute__ ((packed));
+
 struct format_type *create_text_format(struct cmd_context *cmd);
 struct labeller *text_labeller_create(const struct format_type *fmt);
+
+/* maybe needed, so export */
+struct mda_header *raw_read_mda_header(const struct format_type *fmt,
+				       struct device_area *dev_area, int primary_mda);
 
 #endif

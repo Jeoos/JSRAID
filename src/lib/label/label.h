@@ -64,5 +64,6 @@ int label_write(struct device *dev, struct label *label);
 struct label *label_create(struct labeller *labeller);
 bool dev_write_bytes(struct device *dev, uint64_t start, size_t len, void *data);
 int label_dev_open(struct device *dev);
+bool dev_read_bytes(struct device *dev, uint64_t start, size_t len, void *data);
 
 #endif

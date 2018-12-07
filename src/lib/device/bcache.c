@@ -294,7 +294,6 @@ static bool _sync_issue(struct io_engine *ioe, enum dir d, int fd,
         uint64_t len = (se - sb) * 512, where;
 	struct sync_engine *e = _to_sync(ioe);
 	struct sync_io *io = malloc(sizeof(*io));
-        printf("in _sync_issue.\n");
 	if (!io) {
 		printf("unable to allocate sync_io");
         	return false;
@@ -1076,7 +1075,6 @@ static bool _invalidate_block(struct bcache *cache, struct block *b)
 {
 	if (!b)
 		return true;
-        printf("in _invalidate_block\n");
 
 	if (_test_flags(b, BF_IO_PENDING))
 		_wait_specific(b);

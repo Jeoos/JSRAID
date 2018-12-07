@@ -261,3 +261,9 @@ struct device *dev_iter_get(struct dev_iter *iter)
 
 	return NULL;
 }
+
+const char *dev_name(const struct device *dev)
+{
+	return (dev && dev->aliases.n) ? jd_list_item(dev->aliases.n, struct jd_str_list)->str :
+	   "[unknown]";
+}

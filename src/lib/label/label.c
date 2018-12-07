@@ -39,6 +39,28 @@ struct bcache *scan_bcache;
 
 static int _setup_bcache(int cache_blocks);
 
+bool dev_read_bytes(struct device *dev, uint64_t start, size_t len, void *data)
+{
+	if (!scan_bcache) {
+		/* should not happen */
+		printf("err: dev_read bcache not set up.\n");
+		return false;
+	}
+
+	if (dev->bcache_fd <= 0) {
+		/* should not happen */
+		return false;
+	}
+
+	if (!bcache_read_bytes(scan_bcache, dev->bcache_fd, start, len, data)) {
+		printf("err: reading device at %llu length %u.",
+			(unsigned long long)start, (uint32_t)len);
+		return false;
+	}
+	return true;
+
+}
+
 bool dev_write_bytes(struct device *dev, uint64_t start, size_t len, void *data)
 {
         printf("dev->bcache_fd = %d\n", dev->bcache_fd);
