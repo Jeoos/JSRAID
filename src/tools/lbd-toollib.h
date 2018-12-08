@@ -32,9 +32,23 @@ typedef int (*process_single_dv_fn_t) (struct cmd_context *cmd,
 				  struct lbd_pool *lp, struct disk_volume *dv,
 				  struct processing_handle *handle);
 
+typedef int (*process_single_lp_fn_t) (struct cmd_context *cmd,
+				       const char *lp_name,
+				       struct lbd_pool *lp,
+				       struct processing_handle *handle);
+
 int process_each_dv(struct cmd_context *cmd, int argc, char **argv, 
                     int all_is_set, uint32_t read_flags,
 		    struct processing_handle *handle,
 		    process_single_dv_fn_t process_single_dv);
+
+int process_each_lp(struct cmd_context *cmd,
+		    int argc, char **argv,
+		    const char *one_lpname,
+		    struct jd_list *use_lpnames,
+		    uint32_t read_flags,
+		    int include_internal,
+		    struct processing_handle *handle,
+		    process_single_lp_fn_t process_single_lp);
 
 #endif

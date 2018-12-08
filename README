@@ -1,4 +1,5 @@
 # jraid - blah blah ...
+# inspired by lvm2(dm), ceph rbd and of course the kernel raid.
 
 # install
 autoconf

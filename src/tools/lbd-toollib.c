@@ -337,3 +337,15 @@ int dvcreate_each_device(struct cmd_context *cmd,
         }
         return 1;
 }
+
+int process_each_lp(struct cmd_context *cmd,
+		    int argc, char **argv,
+		    const char *one_lpname,
+		    struct jd_list *use_lpnames,
+		    uint32_t read_flags,
+		    int include_internal,
+		    struct processing_handle *handle,
+		    process_single_lp_fn_t process_single_lp)
+{
+        return 1;
+}

@@ -85,6 +85,17 @@ struct lpcreate_params {
 	const char *system_id;
 };
 
+struct lbdcreate_params {
+	int create_pool; /* pools */
+	int32_t major;
+	int32_t minor;
+
+	const char *lp_name;
+	const char *lbd_name;
+
+	struct jd_list *dvh;
+};
+
 struct format_instance {
 	unsigned ref_count;	/* refs to this fid from LP and DV structs */
 
