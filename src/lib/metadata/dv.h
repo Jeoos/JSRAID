@@ -16,10 +16,12 @@
 
 struct device;
 struct lbd_pool;
+struct format_instance;
 
 struct disk_volume {
         struct device *dev;
 	const struct format_type *fmt;
+	struct format_instance *fid;
 
 	const char *lpname;
         struct lbd_pool *lp;

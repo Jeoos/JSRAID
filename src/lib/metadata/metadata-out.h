@@ -121,4 +121,5 @@ void add_dvl_to_lps(struct lbd_pool *lp, struct dv_list *dvl);
 
 struct lbd_pool *lp_create(struct cmd_context *cmd, const char *lp_name);
 
+int lp_write(struct lbd_pool *lp);
 #endif

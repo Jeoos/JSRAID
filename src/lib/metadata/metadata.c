@@ -218,6 +218,17 @@ bad:
         return NULL;
 }
 
+int lp_write(struct lbd_pool *lp)
+{
+	struct metadata_area *mda;
+	/* write to each copy of the metadata area */
+	jd_list_iterate_items(mda, &lp->fid->metadata_areas_in_use) {
+		if (!mda->ops->lp_write(lp->fid, lp, mda))
+                        break;
+        }
+        return 1;
+}
+
 struct format_instance *alloc_fid(const struct format_type *fmt,
 				  const struct format_instance_ctx *fic)
 {
@@ -247,4 +258,27 @@ int fid_add_mda(struct format_instance *fid, struct metadata_area *mda,
 {
         /* FIXME: */
         return 1;
+}
+
+void dv_set_fid(struct disk_volume *dv,
+		struct format_instance *fid)
+{
+	if (fid == dv->fid)
+		return;
+
+	dv->fid = fid;
+}
+
+void lp_set_fid(struct lbd_pool *lp,
+		 struct format_instance *fid)
+{
+	struct dv_list *dvl;
+
+	if (fid == lp->fid)
+		return;
+
+	jd_list_iterate_items(dvl, &lp->dvs)
+		dv_set_fid(dvl->dv, fid);
+
+	lp->fid = fid;
 }

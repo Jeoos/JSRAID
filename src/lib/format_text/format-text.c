@@ -101,7 +101,19 @@ static struct lbd_pool *_lp_read_raw(struct format_instance *fi,
 static int _lp_write_raw(struct format_instance *fi, struct lbd_pool *lp,
 			 struct metadata_area *mda)
 {
+	uint64_t new_wrap = 0;
+	struct mda_context *mdac = (struct mda_context *) mda->metadata_locn;
+	struct text_fid_context *fidtc = (struct text_fid_context *) fi->private;
+
+	if (!dev_write_bytes(mdac->area.dev, mdac->area.start + mdac->rlocn.offset,
+		                (size_t) (mdac->rlocn.size - new_wrap),
+		                fidtc->raw_metadata_buf)) {
+		printf("err: failed to write metadata to %s fd %d", dev_name(mdac->area.dev), mdac->area.dev->bcache_fd);
+		goto out;
+	}
         return 1;
+out:
+        return 0;
 }
 
 static struct metadata_area_ops _metadata_text_raw_ops = {
@@ -316,7 +328,11 @@ static struct format_handler _text_handler = {
 
 struct format_type *create_text_format(struct cmd_context *cmd)
 {
+	struct format_instance_ctx fic;
+	struct format_instance *fid;
 	struct format_type *fmt;
+	struct mda_lists *mda_lists;
+
 	if (!(fmt = malloc(sizeof(*fmt)))) {
 		printf("failed to allocate text format type structure.\n");
 		return NULL;
@@ -325,6 +341,19 @@ struct format_type *create_text_format(struct cmd_context *cmd)
 	fmt->ops = &_text_handler;
 	fmt->name = FMT_TEXT_NAME;
 	fmt->orphan_lp_name = ORPHAN_LP_NAME(FMT_TEXT_NAME);
+
+	if (!(mda_lists = malloc(sizeof(struct mda_lists)))) {
+		printf("err: failed to allocate dir_list");
+		free(fmt);
+		return NULL;
+	}
+
+	jd_list_init(&mda_lists->dirs);
+	jd_list_init(&mda_lists->raws);
+	fmt->private = (void *) mda_lists;
+
+	jd_list_init(&fmt->mda_ops);
+	jd_list_add(&fmt->mda_ops, &_metadata_text_raw_ops.list);
 
 	if (!(fmt->orphan_lp = alloc_lp("text_orphan", cmd, fmt->orphan_lp_name))){
 		printf("couldn't create orphan lbd pool.\n");
@@ -335,6 +364,16 @@ struct format_type *create_text_format(struct cmd_context *cmd)
 		printf("couldn't create text label handler.\n");
 		goto err_out;
 	}
+
+	fic.type = FMT_INSTANCE_AUX_MDAS;
+	fic.context.lp_ref.lp_name = fmt->orphan_lp_name;
+	fic.context.lp_ref.lp_id = NULL;
+	if (!(fid = _text_create_text_instance(fmt, &fic)))
+		goto err_out;
+
+        lp_set_fid(fmt->orphan_lp, fid);
+
+	printf("info: initialised format: %s \n", fmt->name);
 
         return fmt;
 

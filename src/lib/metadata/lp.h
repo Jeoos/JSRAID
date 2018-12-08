@@ -15,9 +15,11 @@
 struct cmd_context;
 struct lbdcache_lpinfo;
 struct jd_list;
+struct format_instance;
 
 struct lbd_pool {
 	struct cmd_context *cmd;
+	struct format_instance *fid;
 	struct lbdcache_lpinfo *lpinfo;
 	struct jd_list dvs;
 

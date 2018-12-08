@@ -44,6 +44,10 @@ int lbdpool(struct cmd_context *cmd, int argc, char **argv)
 		goto bad;
         }
 
+	/* store LP on disk(s) */
+	if (!lp_write(lp)) 
+		goto bad;
+
         return rt;
 bad:
 	return ECMD_FAILED;

@@ -70,4 +70,9 @@ struct format_instance *alloc_fid(const struct format_type *fmt,
 
 int fid_add_mda(struct format_instance *fid, struct metadata_area *mda,
 		 const char *key, size_t key_len, const unsigned sub_key);
+
+void dv_set_fid(struct disk_volume *dv,
+		struct format_instance *fid);
+void lp_set_fid(struct lbd_pool *lp,
+		 struct format_instance *fid);
 #endif
