@@ -49,6 +49,11 @@ struct dv_list {
 	struct disk_volume *dv;
 };
 
+struct lbd_list {
+        struct jd_list list;
+        struct logical_block_device *lbd;
+};
+
 struct dv_create_args {
 	uint64_t size;
 	uint64_t data_alignment;
@@ -133,4 +138,14 @@ void add_dvl_to_lps(struct lbd_pool *lp, struct dv_list *dvl);
 struct lbd_pool *lp_create(struct cmd_context *cmd, const char *lp_name);
 
 int lp_write(struct lbd_pool *lp);
+
+struct logical_block_device *lbd_create_single(struct lbd_pool *lp,
+					struct lbdcreate_params *lbd_p);
+
+char *generate_lbd_name(struct lbd_pool *lp, const char *format,
+		       char *buffer, size_t len);
+
+struct logical_block_device *lbd_create_empty(const char *name,
+				       uint64_t status,
+				       struct lbd_pool *lp);
 #endif

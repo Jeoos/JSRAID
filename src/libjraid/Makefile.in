@@ -18,7 +18,8 @@ SOURCES = \
 	jdstruct/list.c \
 	jdstruct/hash.c \
 	libjd-file.c \
-	libjd-config.c
+	libjd-config.c \
+	libjd-common.c \
 
 LIB_SHARED = libjsraid.$(LIB_SUFFIX)
 TARGETS = libjsraid.$(LIB_SUFFIX)

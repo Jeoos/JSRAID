@@ -51,4 +51,6 @@ int process_each_lp(struct cmd_context *cmd,
 		    struct processing_handle *handle,
 		    process_single_lp_fn_t process_single_lp);
 
+const char *skip_dev_dir(struct cmd_context *cmd, const char *lp_name,
+			 unsigned *dev_dir_found);
 #endif

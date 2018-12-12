@@ -338,6 +338,99 @@ int dvcreate_each_device(struct cmd_context *cmd,
         return 1;
 }
 
+const char *skip_dev_dir(struct cmd_context *cmd, const char *lp_name,
+			 unsigned *dev_dir_found)
+{
+	size_t devdir_len = strlen(cmd->dev_dir);
+	//const char *jddir = jd_dir() + devdir_len;
+
+	if (*lp_name == '/')
+		while (lp_name[1] == '/')
+			lp_name++;
+
+	if (strncmp(lp_name, cmd->dev_dir, devdir_len)) {
+		if (dev_dir_found)
+			*dev_dir_found = 0;
+	} else {
+		if (dev_dir_found)
+			*dev_dir_found = 1;
+
+		lp_name += devdir_len;
+		while (*lp_name == '/')
+			lp_name++;
+
+                /*FIXME: for /dev/jdlbd found */
+	}
+
+	return lp_name;
+}
+
+static int _get_arg_lpnames(struct cmd_context *cmd,
+			    int argc, char **argv,
+			    const char *one_lpname,
+			    struct jd_list *arg_lpnames,
+			    struct jd_list *arg_tags)
+{
+	int opt = 0;
+	int ret_max = ECMD_PROCESSED;
+	const char *lp_name;
+
+	if (one_lpname) {
+		if (!str_list_add(arg_lpnames,
+				  strdup(one_lpname))) {
+			printf("err: strlist allocation failed.\n");
+			return ECMD_FAILED;
+		}
+		return ret_max;
+	}
+	for (; opt < argc; opt++) {
+		lp_name = argv[opt];
+		lp_name = skip_dev_dir(cmd, lp_name, NULL);
+
+		if (strchr(lp_name, '/')) {
+                        printf("err: invalid volume group name %s.\n", lp_name);
+			ret_max = EINVALID_CMD_LINE;
+			continue;
+                }
+		if (!str_list_add(arg_lpnames,
+				  strdup(lp_name))) {
+                        printf("err: strlist allocation failed.\n");
+			return ECMD_FAILED;
+		}
+        }
+        return ret_max;
+}
+
+static int _process_lpnameid_list(struct cmd_context *cmd, uint32_t read_flags,
+				  struct jd_list *lpnameids_to_process,
+				  struct jd_list *arg_lpnames,
+				  struct jd_list *arg_tags,
+				  struct processing_handle *handle,
+				  process_single_lp_fn_t process_single_lp)
+{
+	struct lbd_pool *lp;
+	struct lpnameid_list *lpnl;
+	const char *lp_name;
+	const char *lp_uuid = NULL;
+	uint32_t lockd_state = 0;
+	int ret_max = ECMD_PROCESSED;
+	int ret;
+
+	jd_list_iterate_items(lpnl, lpnameids_to_process) {
+                lp_name = lpnl->lp_name;
+
+		lp = lp_read(cmd, lp_name, lp_uuid, read_flags, lockd_state);
+
+		ret = process_single_lp(cmd, lp_name, lp, handle);
+                if (ret != ECMD_PROCESSED) {
+			ret_max = ret;
+                        goto out;
+                }
+        }
+out: 
+	return ret_max;
+}
+
 int process_each_lp(struct cmd_context *cmd,
 		    int argc, char **argv,
 		    const char *one_lpname,
@@ -347,5 +440,26 @@ int process_each_lp(struct cmd_context *cmd,
 		    struct processing_handle *handle,
 		    process_single_lp_fn_t process_single_lp)
 {
-        return 1;
+	struct jd_list arg_tags;		/* str_list */
+	struct jd_list arg_lpnames;		/* str_list */
+	struct jd_list lpnameids_to_process;	/* lpnameid_list */
+	int ret_max = ECMD_PROCESSED;
+	int ret;
+
+	jd_list_init(&arg_tags);
+	jd_list_init(&arg_lpnames);
+	jd_list_init(&lpnameids_to_process);
+
+	if ((ret = _get_arg_lpnames(cmd, argc, argv, one_lpname, &arg_lpnames, &arg_tags)) != ECMD_PROCESSED) {
+		ret_max = ret;
+		goto out;
+	}
+
+	ret = _process_lpnameid_list(cmd, read_flags, &lpnameids_to_process,
+				     &arg_lpnames, &arg_tags, handle, process_single_lp);
+
+	if (ret > ret_max)
+		ret_max = ret;
+out:
+        return ret_max;
 }

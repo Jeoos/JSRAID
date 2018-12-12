@@ -22,6 +22,7 @@ struct lbd_pool {
 	struct format_instance *fid;
 	struct lbdcache_lpinfo *lpinfo;
 	struct jd_list dvs;
+	struct jd_list lbds;
 
 	const char *system_id;
 

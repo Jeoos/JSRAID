@@ -44,7 +44,19 @@ static int _check_pool_parameters(struct cmd_context *cmd,
 static int _lbdcreate_single(struct cmd_context *cmd, const char *lp_name,
 			    struct lbd_pool *lp, struct processing_handle *handle)
 {
-        return 1;
+	struct processing_params *pp = (struct processing_params *) handle->custom_handle;
+	struct lbdcreate_params *lbd_p = pp->lbd_p;
+	//struct lbdcreate_cmdline_params *lbd_cp = pp->lbd_cp;
+	int ret = ECMD_FAILED;
+
+        /*FIXME: kinds of check */
+
+	if (!lbd_create_single(lp, lbd_p))
+		goto out;
+
+	ret = ECMD_PROCESSED;
+out:
+        return ret;
 }
 
 int lbdself(struct cmd_context *cmd, int argc, char **argv)

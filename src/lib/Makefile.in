@@ -21,13 +21,14 @@ SOURCES = \
 	device/dev-cache.c \
 	metadata/metadata.c \
 	metadata/lp.c \
+	metadata/lbd_manip.c \
 	bdstruct/btree.c \
 	bdstruct/str_list.c \
 	cache/lbdcache.c \
 	format_text/format-text.c \
 	format_text/text-label.c \
 	label/label.c \
-	misc/crc.c
+	misc/crc.c \
 
 LIB_NAME = liblbd-base
 LIB_STATIC = $(LIB_NAME).a
