@@ -296,6 +296,14 @@ static int _create_lp_text_instance(struct format_instance *fid,
         return 1;
 }
 
+static int _text_lbd_setup(struct format_instance *fid __attribute__((unused)),
+			  struct logical_block_device *lbd)
+{
+        /* FIXME: nothing to do */
+	return 1;
+}
+
+
 static struct format_instance *_text_create_text_instance(const struct format_type *fmt,
 							  const struct format_instance_ctx *fic)
 {
@@ -322,6 +330,7 @@ static void _text_destroy(struct format_type *fmt)
 static struct format_handler _text_handler = {
 	.dv_initialise = _text_dv_initialise,
 	.dv_write = _text_dv_write,
+	.lbd_setup = _text_lbd_setup,
 	.create_instance = _text_create_text_instance,
 	.destroy = _text_destroy
 };

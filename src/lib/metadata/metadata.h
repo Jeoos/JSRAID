@@ -52,17 +52,20 @@ struct format_handler {
 	int (*dv_read) (const struct format_type * fmt, const char *dv_name,
 			struct disk_volume* dv, int scan_label_only);
 
-	int (*dv_initialise) (const struct format_type * fmt,
+	int (*dv_initialise) (const struct format_type *fmt,
 			      struct dv_create_args *dva,
 			      struct disk_volume* dv);
 
-	int (*dv_write) (const struct format_type * fmt,
+	int (*dv_write) (const struct format_type *fmt,
 			 struct disk_volume* dv);
+
+	int (*lbd_setup) (struct format_instance *fi,
+			 struct logical_block_device *lbd);
 
 	struct format_instance *(*create_instance) (const struct format_type *fmt,
 						const struct format_instance_ctx *fic);
 
-	void (*destroy) (struct format_type * fmt);
+	void (*destroy) (struct format_type *fmt);
 };
 
 struct format_instance *alloc_fid(const struct format_type *fmt,

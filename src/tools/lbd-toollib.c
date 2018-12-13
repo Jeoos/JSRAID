@@ -442,12 +442,14 @@ int process_each_lp(struct cmd_context *cmd,
 {
 	struct jd_list arg_tags;		/* str_list */
 	struct jd_list arg_lpnames;		/* str_list */
+	struct jd_list lpnameids_on_system;	/* lpnameid_list */
 	struct jd_list lpnameids_to_process;	/* lpnameid_list */
 	int ret_max = ECMD_PROCESSED;
 	int ret;
 
 	jd_list_init(&arg_tags);
 	jd_list_init(&arg_lpnames);
+	jd_list_init(&lpnameids_on_system);
 	jd_list_init(&lpnameids_to_process);
 
 	if ((ret = _get_arg_lpnames(cmd, argc, argv, one_lpname, &arg_lpnames, &arg_tags)) != ECMD_PROCESSED) {
@@ -455,9 +457,21 @@ int process_each_lp(struct cmd_context *cmd,
 		goto out;
 	}
 
+	if (!get_lpnameids(cmd, &lpnameids_on_system, 0)) {
+		ret_max = ECMD_FAILED;
+		goto out;
+	}
+
+	if (jd_list_empty(&arg_lpnames) && jd_list_empty(&lpnameids_on_system)) {
+		printf("err: no lbd pool found.\n");
+		ret_max = ECMD_PROCESSED;
+		goto out;
+	}
+
+        jd_list_splice(&lpnameids_to_process, &lpnameids_on_system);
+
 	ret = _process_lpnameid_list(cmd, read_flags, &lpnameids_to_process,
 				     &arg_lpnames, &arg_tags, handle, process_single_lp);
-
 	if (ret > ret_max)
 		ret_max = ret;
 out:

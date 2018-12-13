@@ -99,7 +99,9 @@ int lbdcache_get_lpnameids(struct cmd_context *cmd, int include_internal,
 	struct lbdcache_lpinfo *lpinfo;
 
 	jd_list_iterate_items(lpinfo, &_lpinfos) {
-		if (!include_internal)
+                /* FIXME: should find any, but orphan lp */
+		//if (!include_internal && is_orphan_lp(lpinfo->lpname))
+		if (!include_internal && !is_orphan_lp(lpinfo->lpname))
                         continue;
 		
 		if (!(lpnl = malloc(sizeof(*lpnl)))) {

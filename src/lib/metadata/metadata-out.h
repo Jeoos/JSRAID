@@ -11,6 +11,7 @@
 
 #include "dv.h"
 #include "lp.h"
+#include "lbd.h"
 
 #ifndef __METADATA_OUT_H__
 #define __METADATA_OUT_H__
@@ -21,6 +22,8 @@
 #define FMT_INSTANCE_MDAS		0x00000002U
 #define FMT_INSTANCE_AUX_MDAS		0x00000004U
 #define FMT_INSTANCE_PRIVATE_MDAS	0x00000008U
+
+#define LBD_REMOVED		UINT64_C(0x0040000000000000)
 
 struct cmd_context;
 struct format_handler;
@@ -148,4 +151,8 @@ char *generate_lbd_name(struct lbd_pool *lp, const char *format,
 struct logical_block_device *lbd_create_empty(const char *name,
 				       uint64_t status,
 				       struct lbd_pool *lp);
+
+struct logical_block_device *alloc_lbd(void);
+
+int link_lbd_to_lp(struct lbd_pool *lp, struct logical_block_device *lbd);
 #endif

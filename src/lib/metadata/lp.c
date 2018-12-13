@@ -25,6 +25,7 @@ struct lbd_pool *alloc_lp(const char *pool_name, struct cmd_context *cmd,
         }
 	lp->cmd = cmd;
 	jd_list_init(&lp->dvs);
+	jd_list_init(&lp->lbds);
 
         return lp;
 }
@@ -32,4 +33,19 @@ struct lbd_pool *alloc_lp(const char *pool_name, struct cmd_context *cmd,
 void free_orphan_lp(struct lbd_pool *lp)
 {
 
+}
+
+int link_lbd_to_lp(struct lbd_pool *lp, struct logical_block_device *lbd)
+{
+	struct lbd_list *lbdl;
+
+	if (!(lbdl = malloc(sizeof(*lbdl))))
+		return 0;
+
+	lbdl->lbd = lbd;
+	lbd->lp = lp;
+	jd_list_add(&lp->lbds, &lbdl->list);
+	lbd->status &= ~LBD_REMOVED;
+
+	return 1;
 }

@@ -9,8 +9,8 @@
  * GNU General Public License for more details.
  */
 
-#include "lbd.h"
 #include "metadata-out.h"
+#include "format-text.h"
 
 #include <string.h>
 
@@ -36,11 +36,26 @@ char *generate_lbd_name(struct lbd_pool *lp, const char *format,
 	return buffer;
 }
 
+struct logical_block_device *alloc_lbd(void)
+{
+	struct logical_block_device *lbd;
+
+	if (!(lbd = malloc(sizeof(*lbd)))) {
+                printf("err: unable to allocate logical block device structure.\n");
+		return NULL;
+	}
+
+	jd_list_init(&lbd->segments);
+	jd_list_init(&lbd->tags);
+
+	return lbd;
+}
+
 struct logical_block_device *lbd_create_empty(const char *name,
 				       uint64_t status,
 				       struct lbd_pool *lp)
 {
-	//struct format_instance *fi = lp->fid;
+	struct format_instance *fi = lp->fid;
         struct logical_block_device *lbd;
 	char dname[NAME_LEN];
 
@@ -51,7 +66,28 @@ struct logical_block_device *lbd_create_empty(const char *name,
 		return NULL;
 	}
 
+        printf("info: creating logical block device %s\n", name);
+	if (!(lbd = alloc_lbd()))
+		return NULL;
+
+	if (!(lbd->name = strdup(name)))
+		goto bad;
+
+	lbd->status = status;
+	lbd->major = -1;
+	lbd->minor = -1;
+	lbd->size = UINT64_C(0);
+	lbd->le_count = 0;
+
+	if (!link_lbd_to_lp(lp, lbd))
+		goto bad;
+
+	if (fi->fmt->ops->lbd_setup && !fi->fmt->ops->lbd_setup(fi, lbd))
+		goto bad;
+
         return lbd;
+bad:
+        return NULL;
 }
 
 static struct logical_block_device *_lbd_create_an_lbd(struct lbd_pool *lp,

@@ -30,6 +30,10 @@ static int _lbdcreate_params(struct cmd_context *cmd,
 			    struct lbdcreate_params *lbd_p,
 			    struct lbdcreate_cmdline_params *lbd_cp)
 {
+        /* FIXME: */
+
+	lbd_cp->dv_count = argc;
+	lbd_cp->dvs = argv;
         return 1;
 }
 
@@ -38,6 +42,7 @@ static int _check_pool_parameters(struct cmd_context *cmd,
 				  struct lbdcreate_params *lbd_p,
 				  struct lbdcreate_cmdline_params *lbd_cp)
 {
+        /* FIXME: for check */
         return 1;
 }
 
@@ -65,7 +70,7 @@ int lbdself(struct cmd_context *cmd, int argc, char **argv)
 	struct processing_params pp;
 	int ret;
 
-        printf("in lbdself argc:%d argv:%s\n", argc, argv[2]);
+        printf("in lbdself argc:%d argv:%s\n", argc, argv[1]);
 
 	struct lbdcreate_params lbd_p = {
 		.major = -1,
