@@ -25,12 +25,25 @@ struct processing_params {
 	struct lbdcreate_cmdline_params *lbd_cp;
 };
 
+static int _lbdcreate_name_params(struct cmd_context *cmd,
+				 int *pargc, char ***pargv,
+				 struct lbdcreate_params *lbd_p)
+{
+        /* FIXME: too stupid */
+        lbd_p->lbd_name = (*pargv)[1];
+
+        return 1;
+}
+
 static int _lbdcreate_params(struct cmd_context *cmd,
 			    int argc, char **argv,
 			    struct lbdcreate_params *lbd_p,
 			    struct lbdcreate_cmdline_params *lbd_cp)
 {
         /* FIXME: */
+
+        /* try get the lbd name from cmdline */
+	_lbdcreate_name_params(cmd, &argc, &argv, lbd_p);
 
 	lbd_cp->dv_count = argc;
 	lbd_cp->dvs = argv;
@@ -42,7 +55,7 @@ static int _check_pool_parameters(struct cmd_context *cmd,
 				  struct lbdcreate_params *lbd_p,
 				  struct lbdcreate_cmdline_params *lbd_cp)
 {
-        /* FIXME: for check */
+        /* FIXME: maybe check for other lp, but orphan lp */
         return 1;
 }
 
