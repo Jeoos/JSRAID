@@ -91,17 +91,36 @@ struct lpcreate_params {
 	size_t max_lbd;
 	uint32_t lpmetadatacopies;
 	const char *system_id;
+	const char *lock_type;
 };
+
+/*
+ * activation options
+ */
+typedef enum activation_change {
+	CHANGE_AY = 0,  /* activate */
+	CHANGE_AN = 1,  /* deactivate */
+	CHANGE_AEY = 2, /* activate exclusively */
+} activation_change_t;
+
+static inline int is_change_activating(activation_change_t change)
+{
+        return change != CHANGE_AN;
+}
+
 
 struct lbdcreate_params {
 	int create_pool; /* pools */
 	int32_t major;
 	int32_t minor;
 
+	activation_change_t activate;
+
 	const char *lp_name;
 	const char *lbd_name;
 
 	struct jd_list *dvh;
+
 };
 
 struct format_instance {
@@ -155,4 +174,6 @@ struct logical_block_device *lbd_create_empty(const char *name,
 struct logical_block_device *alloc_lbd(void);
 
 int link_lbd_to_lp(struct lbd_pool *lp, struct logical_block_device *lbd);
+
+int is_lockd_type(const char *lock_type);
 #endif

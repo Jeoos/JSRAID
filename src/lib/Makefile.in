@@ -22,6 +22,7 @@ SOURCES = \
 	metadata/metadata.c \
 	metadata/lp.c \
 	metadata/lbd_manip.c \
+	metadata/lbd.c \
 	bdstruct/btree.c \
 	bdstruct/str_list.c \
 	cache/lbdcache.c \

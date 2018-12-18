@@ -283,3 +283,12 @@ void lp_set_fid(struct lbd_pool *lp,
 
 	lp->fid = fid;
 }
+
+int is_lockd_type(const char *lock_type)
+{
+	if (!lock_type)
+		return 0;
+	if (!strcmp(lock_type, "sanlock"))
+		return 1;
+	return 0;
+}

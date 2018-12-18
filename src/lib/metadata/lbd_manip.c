@@ -11,6 +11,7 @@
 
 #include "metadata-out.h"
 #include "format-text.h"
+#include "locking.h"
 
 #include <string.h>
 
@@ -95,12 +96,29 @@ static struct logical_block_device *_lbd_create_an_lbd(struct lbd_pool *lp,
 					       const char *new_lbd_name)
 {
         struct logical_block_device *lbd;
+	struct cmd_context *cmd = lp->cmd;
 	uint64_t status = 0;
 
 	if (!(lbd = lbd_create_empty(new_lbd_name ? : "lbdol%d", status, lp)))
 		return NULL;
 
+        if (is_lockd_type(lbd->lp->lock_type)) {
+	        if (is_change_activating(lbd_p->activate)) {
+	                if (!lbd_active_change(cmd, lbd, CHANGE_AEY, 0)) {
+	                        printf("err:aborting. failed to activate LBD %s.\n",
+	                                lbd->name);
+	                        goto err_out;
+			}
+                }
+        } else if (is_change_activating(lbd_p->activate) && !activate_lbd_excl_local(cmd, lbd)) {
+			printf("err: aborting. failed to activate LV %s locally exclusively.\n",
+                                        lbd->name);
+			goto err_out;
+	}
         return lbd;
+
+err_out:
+        return NULL;
 }
 
 struct logical_block_device *lbd_create_single(struct lbd_pool *lp,

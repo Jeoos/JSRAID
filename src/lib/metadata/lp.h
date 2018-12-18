@@ -31,6 +31,7 @@ struct lbd_pool {
 	uint32_t max_dv;
 
 	uint32_t mda_copies; /* target number of mdas for this LP */
+	const char *lock_type;
 };
 struct lbd_pool *alloc_lp(const char *pool_name, struct cmd_context *cmd,
 			      const char *lp_name);

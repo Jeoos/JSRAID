@@ -14,6 +14,8 @@
 
 #include "libjraid.h"
 
+enum activation_change;
+
 struct logical_block_device {
 	const char *name;
 
@@ -28,5 +30,8 @@ struct logical_block_device {
 	struct jd_list segments;
 	struct jd_list tags;
 };
+
+int lbd_active_change(struct cmd_context *cmd, struct logical_block_device *lbd,
+		     enum activation_change activate, int needs_exclusive);
 
 #endif
