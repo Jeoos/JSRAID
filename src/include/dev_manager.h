@@ -1,0 +1,1 @@
+../lib/activate/dev_manager.h

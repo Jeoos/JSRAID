@@ -25,6 +25,7 @@ struct lbd_pool {
 	struct jd_list lbds;
 
 	const char *system_id;
+	const char *name;
 
 	uint32_t extent_size;
 	uint32_t max_lbd;
