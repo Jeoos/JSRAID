@@ -20,6 +20,7 @@ SOURCES = \
 	libjd-file.c \
 	libjd-config.c \
 	libjd-common.c \
+	ioctl/libjd-iface.c \
 
 LIB_SHARED = libjsraid.$(LIB_SUFFIX)
 TARGETS = libjsraid.$(LIB_SUFFIX)

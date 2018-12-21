@@ -20,6 +20,7 @@
 #define JD_LIST_INIT(name)	struct jd_list name = JD_LIST_HEAD_INIT(name)
 
 struct jd_list;
+struct jd_task;
 
 struct jd_str_list {
 	struct jd_list list;
@@ -39,6 +40,11 @@ struct jd_config_tree {
 	void *custom;
 };
 
+struct jd_info {
+	uint32_t major;
+	uint32_t minor;		/* minor device number */
+};
+
 struct jd_pool *jraid_pool_create(const char *name, size_t chunk_hint);
 void jraid_pool_destroy(struct jd_pool *p);
 
@@ -46,5 +52,7 @@ int jd_create_dir(const char *dir);
 struct jd_config_tree *jd_config_create(void);
 
 const char *jd_dir(void);
+
+int jd_task_run(struct jd_task *jdt);
 
 #endif
