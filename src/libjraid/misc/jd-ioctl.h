@@ -11,7 +11,8 @@
 #ifndef __JD_IOCTL_H__
 #define __JD_IOCTL_H__
 
-#define JD_DIR "jdlbd"
+//#define JD_DIR "jdlbd"
+#define JD_DIR "mapper"
 
 #define JD_CONTROL_NODE "control"
 #define JD_NAME_LEN 128

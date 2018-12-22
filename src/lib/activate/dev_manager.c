@@ -67,7 +67,6 @@ out:
 static int _tree_action(struct dev_manager *dm, const struct logical_block_device *lbd,
 			struct lbd_activate_opts *laopts, action_t action)
 {
-
 	switch(action) {
 	case CLEAN:
                 break;

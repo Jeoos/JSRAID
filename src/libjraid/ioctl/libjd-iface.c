@@ -17,6 +17,7 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
+#include <malloc.h>
 
 static int _control_fd = -1;
 
@@ -56,6 +57,12 @@ static struct jd_ioctl *_do_jd_ioctl(struct jd_task *jdt, unsigned command,
 	struct jd_ioctl *jdi = NULL;
 
         /* FIXME: a jd_ioctl needed, alloc and init it */
+        jdi = malloc(sizeof(*jdi));
+        if (!jdi) {
+                printf("err: failed to alloc jd_ioctl.\n");
+                return NULL;
+        }
+        printf("_control_fd=%d\n", _control_fd);
 
 	ioctl(_control_fd, command, jdi);
 

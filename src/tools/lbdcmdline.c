@@ -15,6 +15,7 @@
 #include "command.h"
 #include "command-count.h"
 #include "common.h"
+#include "locking.h"
 
 #include "lbd-version.h"
 
@@ -188,6 +189,9 @@ int lbd_run_command(struct cmd_context *cmd, int argc, char **argv)
 
 	if (!(cmd->command = _find_command(cmd, cmd->name, &argc, argv)))
 		return EINVALID_CMD_LINE;
+
+        if (!init_locking(0, cmd, 0))
+		return ENO_SUCH_CMD;
 
 	if (cmd->command->functions) {
 		rt = cmd->command->functions->fn(cmd, argc, argv);

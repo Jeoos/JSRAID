@@ -30,7 +30,7 @@ int lock_vol(struct cmd_context *cmd, const char *vol, uint32_t flags, const str
 {
 	char resource[258] __attribute__((aligned(8)));
 
-	if (!strncpy(resource, vol, sizeof(resource))) {
+	if (vol && !strncpy(resource, vol, sizeof(resource))) {
                 printf("err: resource name %s is too long.\n", vol);
 		return 0;
 	} else 
@@ -60,8 +60,6 @@ int init_locking(int type, struct cmd_context *cmd, int suppress_messages)
 	switch (type) {
 	case 0:
 		init_no_locking(&_locking, cmd, suppress_messages);
-		printf("WARNING: locking disabled. be careful! "
-			"this could corrupt your metadata.\n");
 		return 1;
 	default:
 		printf("err: unknown locking type requested.\n");
