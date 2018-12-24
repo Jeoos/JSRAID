@@ -34,12 +34,19 @@ struct jd_ioctl {
 	uint32_t data_start;	/* offset to start of data
 				 * relative to start of this struct */
 
+	uint32_t target_count;	/* in/out */
+	int32_t open_count;	/* out */
 	uint32_t flags;		/* in/out */
+
+	uint32_t event_nr;      	/* in/out */
+	uint32_t padding;
+
 	uint64_t dev;
 
 	char name[JD_NAME_LEN];	/* device name */
 	char uuid[JD_UUID_LEN];	/* unique identifier for
 				 * the block device */
+	char data[7];		/* padding or data */
 };
 
 #endif
