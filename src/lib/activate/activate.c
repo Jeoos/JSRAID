@@ -14,11 +14,11 @@
 
 static int _lbd_activate_lbd(const struct logical_block_device *lbd, struct lbd_activate_opts *laopts)
 {
-	int r;
-	struct dev_manager *dm;
+	int r = 0;
+	struct dev_manager *dm = NULL;
 
-	if (!(dm = dev_manager_create(lbd->lp->cmd, lbd->lp->name, 0)))
-		return 0;
+	if (lbd && !(dm = dev_manager_create(lbd->lp->cmd, lbd->lp->name, 0)))
+		return r;
 
 	if (!(r = dev_manager_activate(dm, lbd, laopts)))
 		printf("err: dev manager activate. \n");

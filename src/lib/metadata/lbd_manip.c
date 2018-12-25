@@ -121,6 +121,34 @@ err_out:
         return NULL;
 }
 
+static int _lbd_remove_an_lbd(struct lbd_pool *lp,
+					       struct lbdcreate_params *lbd_p,
+					       const char *new_lbd_name)
+{
+        struct logical_block_device *lbd = NULL;
+	struct cmd_context *cmd = lp->cmd;
+
+        /* find lbd */
+
+        if (lbd && is_lockd_type(lbd->lp->lock_type)) {
+	        if (is_change_activating(lbd_p->activate)) {
+	                if (!lbd_active_change(cmd, lbd, CHANGE_AN, 0)) {
+	                        printf("err:aborting. failed to deactivate LBD %s.\n",
+	                                lbd->name);
+	                        goto err_out;
+			}
+                }
+        } else if (is_change_activating(lbd_p->activate) && !activate_lbd_excl_local(cmd, lbd)) {
+			printf("err: aborting. failed to activate LV %s locally exclusively.\n",
+                                        lbd->name);
+			goto err_out;
+	}
+        return 1;
+
+err_out:
+        return 0;
+}
+
 struct logical_block_device *lbd_create_single(struct lbd_pool *lp,
 					struct lbdcreate_params *lbd_p)
 {
@@ -134,4 +162,17 @@ struct logical_block_device *lbd_create_single(struct lbd_pool *lp,
 		return NULL;
 
         return lbd;
+}
+
+int lbd_remove_single(struct lbd_pool *lp,
+					struct lbdcreate_params *lbd_p)
+{
+	if (lbd_p->create_pool) {
+                /*FIXME: create pool first if necessary */
+        }
+
+	if (!(_lbd_remove_an_lbd(lp, lbd_p, lbd_p->lbd_name)))
+		return 0;
+
+        return 1;
 }

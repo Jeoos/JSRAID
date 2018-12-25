@@ -164,6 +164,9 @@ int lp_write(struct lbd_pool *lp);
 struct logical_block_device *lbd_create_single(struct lbd_pool *lp,
 					struct lbdcreate_params *lbd_p);
 
+int lbd_remove_single(struct lbd_pool *lp,
+					struct lbdcreate_params *lbd_p);
+
 char *generate_lbd_name(struct lbd_pool *lp, const char *format,
 		       char *buffer, size_t len);
 
