@@ -24,4 +24,5 @@ struct dev_manager *dev_manager_create(struct cmd_context *cmd,
 int dev_manager_activate(struct dev_manager *dm, const struct logical_block_device *lbd,
 			 struct lbd_activate_opts *laopts);
 
+int dev_manager_deactivate(struct dev_manager *dm, const struct logical_block_device *lbd);
 #endif

@@ -25,5 +25,7 @@ struct lbd_activate_opts {
 
 int lbd_activate_with_filter(struct cmd_context *cmd, const char *resource, int exclusive,
 			    int noscan, int temporary, const struct logical_block_device *lbd);
+int lbd_deactivate(struct cmd_context *cmd, const char *resource,
+	                const struct logical_block_device *lbd);
 
 #endif

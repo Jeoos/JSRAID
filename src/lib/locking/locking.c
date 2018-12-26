@@ -45,7 +45,10 @@ int lock_vol(struct cmd_context *cmd, const char *vol, uint32_t flags, const str
 static int _no_lock_resource(struct cmd_context *cmd, const char *resource,
 			     uint32_t flags, const struct logical_block_device *lbd)
 {
-	return lbd_activate_with_filter(cmd, resource, 1, 1, 0, lbd);
+        if (1 == flags)
+	        return lbd_deactivate(cmd, resource, lbd);
+        else
+	        return lbd_activate_with_filter(cmd, resource, 1, 1, 0, lbd);
 }
 
 static void init_no_locking(struct locking_type *locking, struct cmd_context *cmd __attribute__((unused)),

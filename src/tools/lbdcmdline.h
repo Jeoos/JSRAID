@@ -29,5 +29,5 @@ struct cmd_context *init_lbd(unsigned set_connections, unsigned set_filters);
 int lbd_shell(struct cmd_context *cmd, struct cmdline_context *cmdline);
 int lbd_run_command(struct cmd_context *cmd, int argc, char **argv);
 int lbd_register_commands(struct cmd_context *cmd, const char *run_name);
-
+int check_do_remove(int argc, char **argv, int *do_remove);
 #endif

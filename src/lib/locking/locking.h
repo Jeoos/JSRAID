@@ -17,12 +17,8 @@
 struct logical_block_device;
 struct cmd_context;
 
-#define LCK_LP		0x00000000U	/* lbd pool */
-#define LCK_LBD		0x00000008U	/* logical block device */
-
-#define LCK_EXCL	0x00000005U	/* exclusive */
-
-#define LCK_LBD_EXCLUSIVE	(LCK_LBD | LCK_EXCL)
+#define LCK_LBD_ACTIVATE 0
+#define LCK_LBD_DEACTIVATE 1
 
 #define lock_lbd_vol(cmd, lbd, flags) lock_vol(cmd, NULL, flags, lbd) 
 
@@ -37,8 +33,11 @@ struct cmd_context;
 	rr; \
 })
 
-#define activate_lbd_excl_local(cmd, lbd)        \
-                lock_lbd(cmd, lbd, LCK_LBD_EXCLUSIVE)
+#define activate_lbd(cmd, lbd)        \
+                lock_lbd(cmd, lbd, LCK_LBD_ACTIVATE)
+
+#define deactivate_lbd(cmd, lbd)        \
+                lock_lbd(cmd, lbd, LCK_LBD_DEACTIVATE)
 
 typedef int (*lock_resource_fn) (struct cmd_context * cmd, const char *resource,
 				 uint32_t flags, const struct logical_block_device *lbd);

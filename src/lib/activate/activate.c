@@ -26,6 +26,20 @@ static int _lbd_activate_lbd(const struct logical_block_device *lbd, struct lbd_
 	return r;
 }
 
+static int _lbd_deactivate(const struct logical_block_device *lbd)
+{
+	int r = 0;
+	struct dev_manager *dm = NULL;
+
+	if (lbd && !(dm = dev_manager_create(lbd->lp->cmd, lbd->lp->name, 0)))
+		return r;
+
+	if (!(r = dev_manager_deactivate(dm, lbd)))
+		printf("err: dev manager activate. \n");
+
+	return r;
+}
+
 static int _lbd_activate(struct cmd_context *cmd, const char *resource,
 			struct lbd_activate_opts *laopts, int filter,
 	                const struct logical_block_device *lbd)
@@ -50,4 +64,16 @@ int lbd_activate_with_filter(struct cmd_context *cmd, const char *resource, int 
 		return 0;
 
 	return 1;
+}
+
+int lbd_deactivate(struct cmd_context *cmd, const char *resource,
+	                const struct logical_block_device *lbd)
+{
+        int r = 0;
+
+        /* FIXME: more logical deal needed */
+
+	if (!(r = _lbd_deactivate(lbd)))
+                printf("err: activate lbd.\n");
+        return r;
 }

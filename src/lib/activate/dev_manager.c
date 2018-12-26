@@ -14,6 +14,7 @@
 #include "libjd-targets.h"
 #include "libjraid.h"
 #include "jd-ioctl.h"
+#include "activate.h"
 
 #include <malloc.h>
 
@@ -46,7 +47,7 @@ static struct jd_task *jd_task_init(void)
 }
 
 static int _resume_node(const char *name, uint32_t major, uint32_t minor,
-			uint32_t read_ahead, uint32_t read_ahead_flags,
+			uint32_t do_remove, uint32_t read_ahead_flags,
 			struct jd_info *newinfo)
 {
 	struct jd_task *jdt;
@@ -56,6 +57,8 @@ static int _resume_node(const char *name, uint32_t major, uint32_t minor,
                 printf("err: failed to init jdt.\n");
                 return 0;
         }
+        if (do_remove)
+                jdt->do_remove = 1;
 
 	if (!(r = jd_task_run(jdt)))
 		goto out;
@@ -71,6 +74,7 @@ static int _tree_action(struct dev_manager *dm, const struct logical_block_devic
 	case CLEAN:
                 break;
 	case DEACTIVATE:
+                _resume_node(NULL, 0, 0, 1, 0, NULL);
                 break;
 	case ACTIVATE:
                 _resume_node(NULL, 0, 0, 0, 0, NULL);
@@ -105,6 +109,16 @@ int dev_manager_activate(struct dev_manager *dm, const struct logical_block_devi
 			 struct lbd_activate_opts *laopts)
 {
 	if (!_tree_action(dm, lbd, laopts, ACTIVATE))
+		return 0;
+
+	return 1;
+}
+
+int dev_manager_deactivate(struct dev_manager *dm, const struct logical_block_device *lbd)
+{
+	struct lbd_activate_opts laopts = { 0 };
+
+	if (!_tree_action(dm, lbd, &laopts, DEACTIVATE))
 		return 0;
 
 	return 1;

@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "common.h"
+#include "lbdcmdline.h"
 
 #define READ_FOR_UPDATE		0x00100000U
 
@@ -100,6 +101,7 @@ int lbdself(struct cmd_context *cmd, int argc, char **argv)
 	struct processing_handle *handle = NULL;
 	struct processing_params pp;
 	int ret;
+	int do_remove = 0;
 
         printf("in lbdself argc:%d argv:%s\n", argc, argv[1]);
 
@@ -118,7 +120,6 @@ int lbdself(struct cmd_context *cmd, int argc, char **argv)
                 printf("err: failed fo check lbd pool params.\n");
 		return EINVALID_CMD_LINE;
 	}
-
 	pp.lbd_p = &lbd_p;
 	pp.lbd_cp = &lbd_cp;
 
@@ -126,11 +127,21 @@ int lbdself(struct cmd_context *cmd, int argc, char **argv)
                 printf("err: failed to initialize processing handle.\n");
 		return ECMD_FAILED;
 	}
-
 	handle->custom_handle = &pp;
+
+        /* simple check for lbd remove */
+        check_do_remove(argc, argv, &do_remove);
+        if (do_remove)
+                goto do_rm;
 
 	ret = process_each_lp(cmd, 0, NULL, lbd_p.lp_name, NULL, READ_FOR_UPDATE, 0, handle,
 			      &_lbdcreate_single);
+
+        return ret;
+
+do_rm:
+	ret = process_each_lp(cmd, 0, NULL, lbd_p.lp_name, NULL, READ_FOR_UPDATE, 0, handle,
+			      &_lbdremove_single);
 
         return ret;
 }

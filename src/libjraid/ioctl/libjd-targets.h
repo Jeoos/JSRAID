@@ -32,6 +32,7 @@ struct jd_task {
 	int major;
 	int minor;
 	uint32_t read_ahead_flags;
+	uint32_t do_remove;
 	union {
 		struct jd_ioctl *v4;
 	} jmi;

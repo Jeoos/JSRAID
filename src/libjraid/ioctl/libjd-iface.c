@@ -69,6 +69,9 @@ static struct jd_ioctl *_do_jd_ioctl(struct jd_task *jdt, unsigned command,
                 printf("err: failed to alloc jd_ioctl.\n");
                 return NULL;
         }
+        
+        if (jdt->do_remove)
+                goto do_rm;
 
 #ifdef IOCTL_MAPPER
         command = 3241737475;
@@ -87,6 +90,23 @@ static struct jd_ioctl *_do_jd_ioctl(struct jd_task *jdt, unsigned command,
         printf("_control_fd=%d\n", _control_fd);
 
         return jdi;
+do_rm:
+
+#ifdef IOCTL_MAPPER
+        command = 3241737476;
+        jdi->version[0]=4; 
+        jdi->version[1]=0;
+        jdi->version[2]=0;
+        jdi->data_size=16384;
+        jdi->data_start=312;
+        jdi->flags=524;
+        jdi->dev=0;
+        strcpy(jdi->name, T_NAME);
+        //strcpy(jdi->uuid, T_UUID);
+#endif
+	ioctl(_control_fd, command, jdi);
+
+        return NULL;
 } 
 
 int jd_task_run(struct jd_task *jdt)
@@ -98,7 +118,7 @@ int jd_task_run(struct jd_task *jdt)
                 return 0;
         }
 
-	if (!(jdi = _do_jd_ioctl(jdt, 0, 0, 0, NULL))) {
+	if (!(jdi = _do_jd_ioctl(jdt, 0, 0, 0, NULL)) && !jdt->do_remove) {
 
                 /* FIXME: for ioctl retry */
 

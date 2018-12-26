@@ -110,7 +110,7 @@ static struct logical_block_device *_lbd_create_an_lbd(struct lbd_pool *lp,
 	                        goto err_out;
 			}
                 }
-        } else if (is_change_activating(lbd_p->activate) && !activate_lbd_excl_local(cmd, lbd)) {
+        } else if (is_change_activating(lbd_p->activate) && !activate_lbd(cmd, lbd)) {
 			printf("err: aborting. failed to activate LV %s locally exclusively.\n",
                                         lbd->name);
 			goto err_out;
@@ -138,7 +138,7 @@ static int _lbd_remove_an_lbd(struct lbd_pool *lp,
 	                        goto err_out;
 			}
                 }
-        } else if (is_change_activating(lbd_p->activate) && !activate_lbd_excl_local(cmd, lbd)) {
+        } else if (is_change_activating(lbd_p->activate) && !deactivate_lbd(cmd, lbd)) {
 			printf("err: aborting. failed to activate LV %s locally exclusively.\n",
                                         lbd->name);
 			goto err_out;

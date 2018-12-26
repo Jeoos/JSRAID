@@ -249,6 +249,26 @@ int lbd_register_commands(struct cmd_context *cmd, const char *run_name)
         return 1;
 }
 
+int check_do_remove(int argc, char **argv, int *do_remove)
+{
+        int i, j;
+
+        for (i = 0; i < argc; i++) {
+                for (j = 0; j < ARG_COUNT; j++) {
+                        if (opt_names[j].opt_enum == remove_ARG) {
+                                if (!strcmp(argv[i], opt_names[j].long_opt)) {
+                                        *do_remove = 1;
+                                        break;
+                                }
+                        }
+                }
+                if (1 == *do_remove)
+                        break;
+        }
+        
+        return 1;
+}
+
 int lbd_main(int argc, char **argv)
 {
         int ret;
