@@ -12,6 +12,8 @@
 #include "libjraid.h"
 #include "jd-ioctl.h"
 #include "libjd-targets.h"
+#include "test-ioctl.h"
+#include "configure.h"
 
 #include <stdio.h>
 #include <dirent.h>
@@ -20,13 +22,7 @@
 #include <malloc.h>
 #include <string.h>
 
-
-#define IOCTL_MAPPER 
-#define T_NAME "lp0-lbdol0" 
-#define T_UUID "LBD-0kK2P2wY0fw3awp8mOP0yL5SRRVSVHGPZAjggD613KUwRu5nPI5GrC2oXQOAFchS"
-
 static int _control_fd = -1;
-
 
 static int _open_and_assign_control_fd(const char *control)
 {
@@ -73,36 +69,17 @@ static struct jd_ioctl *_do_jd_ioctl(struct jd_task *jdt, unsigned command,
         if (jdt->do_remove)
                 goto do_rm;
 
-#ifdef IOCTL_MAPPER
-        command = 3241737475;
-        jdi->version[0]=4; 
-        jdi->version[1]=0;
-        jdi->version[2]=0;
-        jdi->data_size=16384;
-        jdi->data_start=312;
-        jdi->flags=516;
-        jdi->dev=0;
-        strcpy(jdi->name, T_NAME);
-        strcpy(jdi->uuid, T_UUID);
+#ifdef TEST_IOCTL
+	test_ioctl(_control_fd, VALUE_CREATE, jdi, DEV_CREATE);
+	test_ioctl(_control_fd, VALUE_TABLE_LOAD, jdi, DEV_TABLE_LOAD);
+	test_ioctl(_control_fd, VALUE_SUSPEND, jdi, DEV_SUSPEND);
 #endif
-
 	ioctl(_control_fd, command, jdi);
-        printf("_control_fd=%d\n", _control_fd);
-
         return jdi;
-do_rm:
 
-#ifdef IOCTL_MAPPER
-        command = 3241737476;
-        jdi->version[0]=4; 
-        jdi->version[1]=0;
-        jdi->version[2]=0;
-        jdi->data_size=16384;
-        jdi->data_start=312;
-        jdi->flags=524;
-        jdi->dev=0;
-        strcpy(jdi->name, T_NAME);
-        //strcpy(jdi->uuid, T_UUID);
+do_rm:
+#ifdef TEST_IOCTL
+	test_ioctl(_control_fd, VALUE_REMOVE, jdi, DEV_REMOVE);
 #endif
 	ioctl(_control_fd, command, jdi);
 

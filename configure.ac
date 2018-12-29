@@ -68,6 +68,9 @@ AC_ARG_WITH(default-system-dir,
 	    DEFAULT_SYS_DIR=$withval, DEFAULT_SYS_DIR="/etc/lbd")
 AC_DEFINE_UNQUOTED(DEFAULT_SYS_DIR, ["$DEFAULT_SYS_DIR"],
  		   [Path to LBD system directory.])
+TEST_IOCTL=1
+AC_DEFINE_UNQUOTED(TEST_IOCTL, [$TEST_IOCTL],
+ 		   [Test for ioctl.])
 
 ################################################################################
 dnl -- Check for header files.
@@ -98,7 +101,7 @@ dnl -- Prefix is /usr by default.
 AC_PREFIX_DEFAULT(/usr)
 
 ################################################################################
-dnl Version define
+dnl Version
 read VER < "$srcdir"/VERSION 2>/dev/null || VER=Unknown
 LBD_VERSION=\"$VER\"
 LBD_RELEASE_DATE="\"`echo $VER | $SED 's/.* (//;s/).*//'`\""
@@ -121,6 +124,7 @@ AC_SUBST(LBD_MAJOR)
 AC_SUBST(LBD_MINOR)
 AC_SUBST(LBD_PATCHLEVEL)
 AC_SUBST(DEFAULT_SYS_DIR)
+AC_SUBST(TEST_IOCTL)
 
 ################################################################################
 dnl -- Transform 

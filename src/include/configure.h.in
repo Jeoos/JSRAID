@@ -1,2 +1,4 @@
 /* Path to LBD system directory. */
 #undef DEFAULT_SYS_DIR
+/* Test for ioctl. */
+#undef TEST_IOCTL 

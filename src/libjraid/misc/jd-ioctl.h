@@ -11,6 +11,7 @@
 #ifndef __JD_IOCTL_H__
 #define __JD_IOCTL_H__
 
+#include <stdint.h>
 //#define JD_DIR "jdlbd"
 #define JD_DIR "mapper"
 

@@ -12,8 +12,9 @@
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 top_builddir = @top_builddir@
+TEST_IOCTL = @TEST_IOCTL@
 
-SOURCES = \
+SOURCES := \
 	mm/pool-fast.c \
 	jdstruct/list.c \
 	jdstruct/hash.c \
@@ -21,6 +22,10 @@ SOURCES = \
 	libjd-config.c \
 	libjd-common.c \
 	ioctl/libjd-iface.c \
+
+ifeq ($(TEST_IOCTL), 1)
+SOURCES += $(top_srcdir)/test/ioctl/ioctl.c
+endif
 
 LIB_SHARED = libjsraid.$(LIB_SUFFIX)
 TARGETS = libjsraid.$(LIB_SUFFIX)

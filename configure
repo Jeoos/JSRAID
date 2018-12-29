@@ -622,6 +622,7 @@ ac_includes_default="\
 ac_default_prefix=/usr
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
+TEST_IOCTL
 DEFAULT_SYS_DIR
 LBD_PATCHLEVEL
 LBD_MINOR
@@ -4073,6 +4074,12 @@ cat >>confdefs.h <<_ACEOF
 #define DEFAULT_SYS_DIR "$DEFAULT_SYS_DIR"
 _ACEOF
 
+TEST_IOCTL=1
+
+cat >>confdefs.h <<_ACEOF
+#define TEST_IOCTL $TEST_IOCTL
+_ACEOF
+
 
 ################################################################################
 
@@ -4987,6 +4994,7 @@ LBD_MINOR=`echo "$VER" | $AWK -F '.' '{print $2}'`
 LBD_PATCHLEVEL=`echo "$VER" | $AWK -F '[(.]' '{print $3}'`
 
 ################################################################################
+
 
 
 
