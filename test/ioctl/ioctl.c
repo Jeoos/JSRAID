@@ -32,10 +32,10 @@
  * we need a patch for kernel dm-mod.ko.
  *
  * struct dm_target_spec filing in:
- * spec->sector_start = 0;                                         
- * spec->length = 41943040;                                                                                                                                                                                                      
- * spec->status = 0;                                               
- * spec->next = 56;                                                
+ * spec->sector_start = 0;
+ * spec->length = 41943040;
+ * spec->status = 0;
+ * spec->next = 56;
  * strcpy(spec->target_type, "linear");
  * 
  * and more, linear_ctr function parameters should be:
