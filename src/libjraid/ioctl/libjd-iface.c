@@ -12,8 +12,11 @@
 #include "libjraid.h"
 #include "jd-ioctl.h"
 #include "libjd-targets.h"
-#include "test-ioctl.h"
 #include "configure.h"
+
+#ifdef TEST_IOCTL
+#include "test-ioctl.h"
+#endif
 
 #include <stdio.h>
 #include <dirent.h>
