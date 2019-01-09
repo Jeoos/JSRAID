@@ -19,6 +19,7 @@
 #include <linux/kernel.h>
 
 #include "ioctl_us.h"
+#include "jraid-thread.h"
 
 #define BLKDEV_DISKNAME "lbd0"
 #define BLKDEV_DEVICEMAJOR COMPAQ_SMART2_MAJOR
@@ -27,6 +28,7 @@
 #define RADIX_TREE_TAG_DIRTY	0
 #define RADIX_TREE_TAG_TSYNC    1
 
+struct jraid_pool *jd_pool;
 static struct gendisk *lbd_blkdev_disk;
 static struct request_queue *lbd_blkdev_queue;
 
@@ -85,6 +87,18 @@ static const struct block_device_operations lbd_blkdev_fops = {
 
 static blk_qc_t jraid_make_request(struct request_queue *q, struct bio *bi)
 {
+	const int rw = bio_data_dir(bi);
+	unsigned int sectors;
+	int cpu;
+
+	sectors = bio_sectors(bi);
+
+        /* added for iostat probe */
+	cpu = part_stat_lock();
+	part_stat_inc(cpu, &lbd_blkdev_disk->part0, ios[rw]);
+	part_stat_add(cpu, &lbd_blkdev_disk->part0, sectors[rw], sectors);
+	part_stat_unlock();
+
         bio_endio(bi);
         return BLK_QC_T_NONE;
 }
@@ -93,15 +107,25 @@ static int __init jraid_main_init(void)
 {
         int ret;
 
-        lbd_blkdev_queue = blk_alloc_queue(GFP_KERNEL);
-        if (!lbd_blkdev_queue)
-                return -ENOMEM;
+        /* FIXME: just for a sigle pool, one lbd now */
+        
+        jd_pool = kmalloc(sizeof(struct jraid_pool), GFP_KERNEL);
+        if (!jd_pool) {
+	        pr_debug("failed to alloc jd_pool.\n");
+                goto err_alloc_pool;
+        }
 
-        blk_queue_make_request(lbd_blkdev_queue, jraid_make_request);
+        jd_pool->sync_thread = pool_register_thread(pool_do_sync, jd_pool, "resync") ;
+        if (!jd_pool->sync_thread)
+                goto abort;
+
+        lbd_blkdev_queue = blk_alloc_queue(GFP_KERNEL);
         if (!lbd_blkdev_queue) {
                 ret = -ENOMEM;
                 goto err_alloc_queue;
         }
+
+        blk_queue_make_request(lbd_blkdev_queue, jraid_make_request);
 
         lbd_blkdev_disk = alloc_disk(1);
         if (!lbd_blkdev_disk) {
@@ -119,13 +143,18 @@ static int __init jraid_main_init(void)
         blk_queue_flush(lbd_blkdev_disk->queue, REQ_FLUSH | REQ_FUA);
         
         add_disk(lbd_blkdev_disk);
+	
+        pool_wakeup_thread(jd_pool->sync_thread);
 
         return 0;
 
 err_alloc_disk:
         blk_cleanup_queue(lbd_blkdev_queue);
-
 err_alloc_queue:
+	pool_unregister_thread(&jd_pool->sync_thread);
+abort:
+        kfree(jd_pool);
+err_alloc_pool:
         return ret;
 }
   
@@ -135,6 +164,9 @@ static void __exit jraid_main_exit(void)
         put_disk(lbd_blkdev_disk);
 
         blk_cleanup_queue(lbd_blkdev_queue);
+        if (jd_pool->sync_thread)
+	        pool_unregister_thread(&jd_pool->sync_thread);
+        kfree(jd_pool);
         return;
 }
 
