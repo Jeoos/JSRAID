@@ -16,19 +16,22 @@
 #include <linux/bio.h>
 
 struct jraid_pool;
+struct local_block_device;
 extern spinlock_t pers_lock;
 extern struct list_head pers_list;
 
 struct pool_personality
 {
+	char *name;
 	struct list_head list;
 
         /* pool tactics */
-	void (*make_request)(struct jraid_pool *jd_pool, struct bio *bio);
+	void (*make_request)(struct local_block_device *lbd, struct bio *bi);
 };
 
-int sigle_pool_init(void);
+struct jraid_pool *sigle_pool_init(void);
 int register_pool_personality(struct pool_personality *p);
 int unregister_pool_personality(struct pool_personality *p);
+struct pool_personality *find_pers(char *pname);
 
 #endif

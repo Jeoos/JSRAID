@@ -20,6 +20,51 @@ LIST_HEAD(pers_list);
 DEFINE_SPINLOCK(pers_lock);
 extern struct jraid_pool *jd_pool;
 
+void pool_do_sync(struct pool_thread *thread)
+{
+        printk("In %s ...\n", __func__);
+}
+
+struct jraid_pool *sigle_pool_init(void)
+{
+        jd_pool = kmalloc(sizeof(struct jraid_pool), GFP_KERNEL);
+        if (!jd_pool) {
+	        pr_debug("failed to alloc jd_pool.\n");
+                goto err_alloc_pool;
+        }
+
+        jd_pool->sync_thread = pool_register_thread(pool_do_sync, jd_pool, "resync") ;
+        if (!jd_pool->sync_thread) {
+                goto abort;
+        }
+        return jd_pool;
+abort:
+        kfree(jd_pool);
+err_alloc_pool:
+        return NULL;
+}
+
+static void make_request(struct local_block_device *lbd, struct bio * bi)
+{
+       printk("in %s ...\n", __func__);
+}
+
+struct pool_personality jraid_personality =
+{
+        .name = "jraid",
+        .make_request = make_request,
+};
+
+struct pool_personality *find_pers(char *pname)
+{
+        struct pool_personality *pers;
+        list_for_each_entry(pers, &pers_list, list) {
+                if (strcmp(pers->name, pname) == 0)
+                        return pers;
+        }
+        return NULL;
+}
+
 int register_pool_personality(struct pool_personality *p)
 {
 	spin_lock(&pers_lock);
@@ -34,31 +79,4 @@ int unregister_pool_personality(struct pool_personality *p)
 	list_del_init(&p->list);
 	spin_unlock(&pers_lock);
 	return 0;
-}
-
-void pool_do_sync(struct pool_thread *thread)
-{
-        printk("In %s ...\n", __func__);
-}
-
-int sigle_pool_init(void)
-{
-        int ret = 0;
-        jd_pool = kmalloc(sizeof(struct jraid_pool), GFP_KERNEL);
-        if (!jd_pool) {
-                ret = -ENOMEM;
-	        pr_debug("failed to alloc jd_pool.\n");
-                goto err_alloc_pool;
-        }
-
-        jd_pool->sync_thread = pool_register_thread(pool_do_sync, jd_pool, "resync") ;
-        if (!jd_pool->sync_thread) {
-                ret = EINVAL;
-                goto abort;
-        }
-        return ret;
-abort:
-        kfree(jd_pool);
-err_alloc_pool:
-        return ret;
 }

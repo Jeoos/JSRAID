@@ -17,6 +17,6 @@ struct disk_volume
 {
         sector_t sectors; /* device size */
         struct block_device *bdev;
-}
+};
 
 #endif

@@ -15,12 +15,14 @@
 
 struct local_block_device
 {
-        struct gendisk *gendisk;
+        struct gendisk  *gendisk;
 
-        struct request_queue *queue;
+        struct request_queue  *queue;
+        struct jraid_pool  *jd_pool;
+	struct pool_personality	 *pers;
 };
 
-int lbd_alloc(void);
+struct local_block_device *lbd_alloc(void);
 void lbd_del(void);
 
 #endif

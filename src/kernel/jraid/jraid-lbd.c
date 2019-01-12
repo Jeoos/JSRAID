@@ -16,6 +16,7 @@
 #include "ioctl_us.h"
 #include "jraid-lbd.h"
 #include "jraid-io.h"
+#include "jraid-pool.h"
 
 #define BLKDEV_DISKNAME "lbd0"
 #define BLKDEV_DEVICEMAJOR COMPAQ_SMART2_MAJOR
@@ -73,27 +74,29 @@ static const struct block_device_operations lbd_blkdev_fops = {
         .ioctl          = lbd_ioctl, 
 };
 
-int lbd_alloc(void)
+struct local_block_device *lbd_alloc(void)
 {
-        int ret = 0;
+        struct local_block_device *lbd;
         lbd = kmalloc(sizeof(struct local_block_device), GFP_KERNEL);
         if (!lbd) {
-                ret = -ENOMEM;
                 goto err_alloc_lbd;
         }
 
         lbd->queue = blk_alloc_queue(GFP_KERNEL);
         if (!lbd->queue) {
-                ret = -ENOMEM;
                 goto err_alloc_queue;
         }
         lbd->queue->queuedata = lbd;
+
+        lbd->pers = find_pers("jraid");
+        if (!lbd->pers) {
+                goto err_find_pers;
+        }
 
         blk_queue_make_request(lbd->queue, jraid_make_request);
 
         lbd->gendisk = alloc_disk(1);
         if (!lbd->gendisk) {
-                ret = -ENOMEM;
                 goto err_alloc_disk;
         }
 
@@ -108,14 +111,15 @@ int lbd_alloc(void)
         
         add_disk(lbd->gendisk);
 
-        return 0;	
+        return lbd;	
 
 err_alloc_disk:
+err_find_pers:
         blk_cleanup_queue(lbd->queue);
 err_alloc_queue:
         kfree(lbd);
 err_alloc_lbd:
-        return ret;
+        return NULL;
 }
 
 void lbd_del()

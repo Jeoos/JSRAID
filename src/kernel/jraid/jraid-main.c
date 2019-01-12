@@ -20,35 +20,38 @@
 
 struct jraid_pool *jd_pool;
 struct local_block_device *lbd;
+extern struct pool_personality jraid_personality;
 
 static int __init jraid_main_init(void)
 {
-        int ret;
+        int ret = 0;
+
+        register_pool_personality(&jraid_personality);
 
         /* FIXME: just for a sigle pool, one lbd now */
-
-        ret = sigle_pool_init();
-        if (ret) {
+        jd_pool = sigle_pool_init();
+        if (!jd_pool) {
                 ret = EINVAL;
                 goto err_pool_init;
         }
 
-        ret = lbd_alloc();
-        if (ret) {
+        lbd = lbd_alloc();
+        if (!lbd) {
                 ret = EINVAL;
                 goto err_lbd_init;
         }
-        
+
         if (jd_pool->sync_thread)
                 pool_wakeup_thread(jd_pool->sync_thread);
 
-        return 0;
+        return ret;
 
 err_lbd_init:
         if (jd_pool->sync_thread)
 	        pool_unregister_thread(&jd_pool->sync_thread);
         kfree(jd_pool);
 err_pool_init:
+        unregister_pool_personality(&jraid_personality);
         return ret;
 }
   
@@ -59,6 +62,9 @@ static void __exit jraid_main_exit(void)
 	        pool_unregister_thread(&jd_pool->sync_thread);
         }
         kfree(jd_pool);
+
+        unregister_pool_personality(&jraid_personality);
+
         return;
 }
 

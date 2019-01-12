@@ -16,6 +16,7 @@
 
 #include "jraid-io.h"
 #include "jraid-lbd.h"
+#include "jraid-pool.h"
 
 blk_qc_t jraid_make_request(struct request_queue *q, struct bio *bi)
 {
@@ -31,6 +32,8 @@ blk_qc_t jraid_make_request(struct request_queue *q, struct bio *bi)
 	part_stat_inc(cpu, &lbd->gendisk->part0, ios[rw]);
 	part_stat_add(cpu, &lbd->gendisk->part0, sectors[rw], sectors);
 	part_stat_unlock();
+
+        lbd->pers->make_request(lbd, bi);
 
         bio_endio(bi);
         return BLK_QC_T_NONE;
