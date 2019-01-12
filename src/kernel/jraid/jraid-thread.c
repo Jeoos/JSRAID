@@ -16,9 +16,8 @@
 #include <linux/kthread.h>
 
 #include "jraid-thread.h"
+#include "jraid-pool.h"
 
-LIST_HEAD(pools_list);
-DEFINE_SPINLOCK(pools_lock);
 
 static int pool_thread(void *arg)
 {
@@ -99,15 +98,10 @@ void pool_unregister_thread(struct pool_thread **threadp)
          * Locking ensures that jd_pool_unlock does not wake_up a
 	 * non-existent thread
 	 */
-	spin_lock(&pools_lock);
+	spin_lock(&pers_lock);
 	*threadp = NULL;
-	spin_unlock(&pools_lock);
+	spin_unlock(&pers_lock);
 
 	kthread_stop(thread->tsk);
 	kfree(thread);
-}
-
-void pool_do_sync(struct pool_thread *thread)
-{
-        printk("In %s ...\n", __func__);
 }

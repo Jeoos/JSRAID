@@ -10,7 +10,8 @@
 #
 
 obj-m := jraid.o
-jraid-objs += jraid-main.o jraid-thread.o
+jraid-objs += jraid-main.o jraid-thread.o jraid-pool.o jraid-lbd.o \
+	jraid-io.o jraid-dv.o
 
 KEV := /lib/modules/`uname -r`/build
 PWD :=$(shell pwd)
