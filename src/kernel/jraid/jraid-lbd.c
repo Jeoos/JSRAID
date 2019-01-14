@@ -17,12 +17,14 @@
 #include "jraid-lbd.h"
 #include "jraid-io.h"
 #include "jraid-pool.h"
+#include "jraid-thread.h"
 
 #define BLKDEV_DISKNAME "lbd0"
 #define BLKDEV_DEVICEMAJOR COMPAQ_SMART2_MAJOR
 #define BLKDEV_SECTORS (200*1024*1024)
 
 extern struct local_block_device *lbd;
+extern struct workqueue_struct *jraid_misc_wq;
 
 static int lbd_open(struct block_device *bdev, fmode_t mode)
 {
@@ -86,6 +88,8 @@ struct local_block_device *lbd_alloc(void)
         if (!lbd->queue) {
                 goto err_alloc_queue;
         }
+
+        strcpy(lbd->lbd_name, "lbd0");
         lbd->queue->queuedata = lbd;
 
         lbd->pers = find_pers("jraid");
@@ -124,10 +128,42 @@ err_alloc_lbd:
 
 void lbd_del()
 {
+        if (lbd->sync_thread)
+	        jraid_unregister_thread(&lbd->sync_thread, LBD_THREAD);
+
         blk_cleanup_queue(lbd->queue);
 
         del_gendisk(lbd->gendisk);
         put_disk(lbd->gendisk);
 
         kfree(lbd);
+}
+
+void lbd_do_sync(struct jraid_thread *thread)
+{
+        printk("in %s ...\n", __func__);
+
+}
+
+static void lbd_start_sync(struct work_struct *ws)
+{
+	struct local_block_device *lbd = container_of(ws, struct local_block_device, 
+                                misc_work);
+        printk("in %s ...\n", __func__);
+        lbd->sync_thread = jraid_register_thread(lbd_do_sync, lbd, LBD_THREAD, "resync");
+        if (!lbd->sync_thread) {
+                goto abort;
+        }
+        jraid_wakeup_thread(lbd->sync_thread);
+abort:
+        pr_debug("err sync thread.\n");
+        return;
+}
+
+void lbd_check_recovery(struct local_block_device *lbd)
+{
+        if (lbd->pers->sync_request) {
+		INIT_WORK(&lbd->misc_work, lbd_start_sync);
+		queue_work(jraid_misc_wq, &lbd->misc_work);
+        }
 }

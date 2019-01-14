@@ -15,7 +15,9 @@
 
 #include <linux/bio.h>
 
-struct jraid_pool;
+#define MAX_POOL_NAME 32
+
+struct jraid_thread;
 struct local_block_device;
 extern spinlock_t pers_lock;
 extern struct list_head pers_list;
@@ -26,7 +28,18 @@ struct pool_personality
 	struct list_head list;
 
         /* pool tactics */
+	sector_t (*sync_request)(struct local_block_device *lbd, sector_t sector_nr, int *skipped);
 	void (*make_request)(struct local_block_device *lbd, struct bio *bi);
+};
+
+struct jraid_pool {
+        spinlock_t  lock;
+	struct list_head	lbds;
+	char		        uuid[16];
+        char        pool_name[MAX_POOL_NAME];
+
+        struct jraid_thread      *thread;
+        struct workqueue_struct  *pool_wq;
 };
 
 struct jraid_pool *sigle_pool_init(void);

@@ -19,12 +19,12 @@
 #include "jraid-pool.h"
 
 
-static int pool_thread(void *arg)
+static int jraid_thread(void *arg)
 {
-	struct pool_thread *thread = arg;
+	struct jraid_thread *thread = arg;
 
 	/*
-	 * pool_thread is a 'system-thread', it's priority should be very
+	 * jraid_thread is a 'system-thread', it's priority should be very
 	 * high. 
 	 */
 
@@ -54,32 +54,33 @@ static int pool_thread(void *arg)
 	return 0;
 }
 
-void pool_wakeup_thread(struct pool_thread *thread)
+void jraid_wakeup_thread(struct jraid_thread *thread)
 {
 	if (thread) {
-		pr_debug("pool: waking up thread %s.\n", thread->tsk->comm);
+		pr_debug("jraid: waking up thread %s.\n", thread->tsk->comm);
 		set_bit(THREAD_WAKEUP, &thread->flags);
 		wake_up(&thread->wqueue);
 	}
 }
 
-struct pool_thread *pool_register_thread(void (*run) (struct pool_thread *),
-		struct jraid_pool *jd_pool, const char *name)
+struct jraid_thread *jraid_register_thread(void (*run) (struct jraid_thread *),
+		void *d_struct, dtype_t type, const char *name)
 {
-	struct pool_thread *thread;
+	struct jraid_thread *thread;
 
-	thread = kzalloc(sizeof(struct pool_thread), GFP_KERNEL);
+	thread = kzalloc(sizeof(struct jraid_thread), GFP_KERNEL);
 	if (!thread)
 		return NULL;
 
 	init_waitqueue_head(&thread->wqueue);
 
+	thread->type = type;
 	thread->run = run;
-	thread->jd_pool = jd_pool;
+	thread->d_struct = d_struct;
 	thread->timeout = MAX_SCHEDULE_TIMEOUT;
-	thread->tsk = kthread_run(pool_thread, thread,
+	thread->tsk = kthread_run(jraid_thread, thread,
 				  "%s_%s",
-				  poolname(thread->jd_pool),
+				  d_name(thread->d_struct, type),
 				  name);
 	if (IS_ERR(thread->tsk)) {
 		kfree(thread);
@@ -88,16 +89,17 @@ struct pool_thread *pool_register_thread(void (*run) (struct pool_thread *),
 	return thread;
 }
 
-void pool_unregister_thread(struct pool_thread **threadp)
+void jraid_unregister_thread(struct jraid_thread **threadp, dtype_t type)
 {
-	struct pool_thread *thread = *threadp;
+	struct jraid_thread *thread = *threadp;
 	if (!thread)
 		return;
-	pr_debug("interrupting pool-thread pid %d\n", task_pid_nr(thread->tsk));
+	pr_debug("interrupting jraid-thread pid %d\n", task_pid_nr(thread->tsk));
 	/* 
-         * Locking ensures that jd_pool_unlock does not wake_up a
+         * Locking ensures that unlock does not wake_up a
 	 * non-existent thread
 	 */
+        /* FIXME: for differ type unregister */
 	spin_lock(&pers_lock);
 	*threadp = NULL;
 	spin_unlock(&pers_lock);

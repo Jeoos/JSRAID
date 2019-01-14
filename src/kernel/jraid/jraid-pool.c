@@ -15,14 +15,23 @@
 
 #include "jraid-pool.h"
 #include "jraid-thread.h"
+#include "jraid-lbd.h"
 
 LIST_HEAD(pers_list);
 DEFINE_SPINLOCK(pers_lock);
 extern struct jraid_pool *jd_pool;
 
-void pool_do_sync(struct pool_thread *thread)
+void poold(struct jraid_thread *thread)
 {
+        struct local_block_device *lbd;
+        struct jraid_pool *jd_pool = (struct jraid_pool *)thread->d_struct;
+
         printk("In %s ...\n", __func__);
+
+        /* check for each lbd belongs to the current pool.*/
+        list_for_each_entry(lbd, &jd_pool->lbds, list) {
+                lbd_check_recovery(lbd);
+        }
 }
 
 struct jraid_pool *sigle_pool_init(void)
@@ -32,16 +41,33 @@ struct jraid_pool *sigle_pool_init(void)
 	        pr_debug("failed to alloc jd_pool.\n");
                 goto err_alloc_pool;
         }
+        /* FIXME: jraid pools each have one workqueue, the name should be differ */
+	jd_pool->pool_wq = alloc_workqueue("poolwq", WQ_MEM_RECLAIM, 0);
+	if (!jd_pool->pool_wq)
+		goto err_wq;
 
-        jd_pool->sync_thread = pool_register_thread(pool_do_sync, jd_pool, "resync") ;
-        if (!jd_pool->sync_thread) {
+        strcpy(jd_pool->pool_name, "pool0");
+
+        jd_pool->thread = jraid_register_thread(poold, jd_pool, POOL_THREAD, "poold") ;
+        if (!jd_pool->thread) {
                 goto abort;
         }
+        
+        spin_lock_init(&jd_pool->lock);
+        INIT_LIST_HEAD(&jd_pool->lbds);
+
         return jd_pool;
 abort:
+	destroy_workqueue(jd_pool->pool_wq);
+err_wq:
         kfree(jd_pool);
 err_alloc_pool:
         return NULL;
+}
+
+static inline sector_t sync_request(struct local_block_device *lbd, sector_t sector_nr, int *skipped)
+{
+        return 0;
 }
 
 static void make_request(struct local_block_device *lbd, struct bio * bi)
@@ -52,6 +78,7 @@ static void make_request(struct local_block_device *lbd, struct bio * bi)
 struct pool_personality jraid_personality =
 {
         .name = "jraid",
+        .sync_request = sync_request,
         .make_request = make_request,
 };
 
