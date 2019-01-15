@@ -16,6 +16,7 @@
 #include <linux/bio.h>
 
 #define MAX_POOL_NAME 32
+#define NR_STRIPE_HASH_LOCKS 8
 
 struct jraid_thread;
 struct local_block_device;
@@ -40,7 +41,32 @@ struct jraid_pool {
 
         struct jraid_thread      *thread;
         struct workqueue_struct  *pool_wq;
+        struct workqueue_struct  *lbds_wq;
 };
+
+/* pool worker*/
+struct pworker {
+	struct work_struct work;
+	struct pworker_group *group;
+	struct list_head temp_list[NR_STRIPE_HASH_LOCKS];
+	bool working;
+};
+
+struct pworker_group {
+	struct list_head handle_list;
+	struct pconf *conf;
+	struct pworker *workers;
+	int stripes_cnt;
+};
+
+/* pool config */
+struct pconf {
+        struct jraid_pool *jd_pool;
+	struct pworker_group	*worker_groups;
+	int			group_cnt;
+	int			worker_cnt_per_group;
+};
+
 
 struct jraid_pool *sigle_pool_init(void);
 int register_pool_personality(struct pool_personality *p);

@@ -15,6 +15,11 @@
 
 #include <linux/bio.h>
 
+struct stripe_head {
+        struct pconf *conf;
+        int cpu;
+};
+
 blk_qc_t jraid_make_request(struct request_queue *q, struct bio *bi);
 
 #endif

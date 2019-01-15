@@ -69,11 +69,13 @@ err_misc_wq:
 static void __exit jraid_main_exit(void)
 {
         lbd_del();
+
         if (jd_pool->thread)
 	        jraid_unregister_thread(&jd_pool->thread, POOL_THREAD);
+        if (jd_pool->lbds_wq)
+	        destroy_workqueue(jd_pool->lbds_wq);
         if (jd_pool->pool_wq)
 	        destroy_workqueue(jd_pool->pool_wq);
-
         kfree(jd_pool);
 
         unregister_pool_personality(&jraid_personality);
