@@ -10,6 +10,9 @@
  * GNU General Public License for more details.
  */
 
+#ifndef __JRAID_THREAD_H__
+#define __JRAID_THREAD_H__
+
 #define THREAD_WAKEUP 0
 
 #include "jraid-pool.h"
@@ -55,3 +58,5 @@ struct jraid_thread *jraid_register_thread(void (*run) (struct jraid_thread *),
 		void *d_struct, dtype_t type, const char *name);
 void jraid_unregister_thread(struct jraid_thread **threadp, dtype_t type);
 void jraid_wakeup_thread(struct jraid_thread *thread);
+
+#endif
