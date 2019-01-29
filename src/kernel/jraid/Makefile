@@ -12,9 +12,14 @@
 obj-m := jraid.o
 jraid-objs += jraid-main.o jraid-thread.o jraid-pool.o jraid-lbd.o \
 	jraid-io.o jraid-dv.o jraid-bufio.o \
-	persistent-data/jraid-btree.o persistent-data/jraid-transaction-manager.o \
-	persistent-data/jraid-block-manager.o persistent-data/jraid-space-map-disk.o
-
+	persistent-data/jraid-btree.o \
+	persistent-data/jraid-btree-remove.o \
+	persistent-data/jraid-block-manager.o \
+	persistent-data/jraid-transaction-manager.o \
+	persistent-data/jraid-space-map-common.o \
+	persistent-data/jraid-space-map-disk.o \
+	persistent-data/jraid-space-map-metadata.o \
+	
 KEV := /lib/modules/`uname -r`/build
 PWD :=$(shell pwd)
 

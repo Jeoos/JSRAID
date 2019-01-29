@@ -10,8 +10,8 @@
  * GNU General Public License for more details.
  */
 
-#ifndef JRAID_BLOCK_MANAGER_H__
-#define JRAID_BLOCK_MANAGER_H__
+#ifndef __JRAID_BLOCK_MANAGER_H__
+#define __JRAID_BLOCK_MANAGER_H__
 
 #include <linux/types.h>
 
@@ -36,5 +36,6 @@ jd_block_t jd_block_location(struct jd_block *b);
 int jd_bm_write_lock_zero(struct jd_block_manager *bm,
 			  jd_block_t b, struct jd_block_validator *v,
 			  struct jd_block **result);
+u32 jd_bm_checksum(const void *data, size_t len, u32 init_xor);
 
 #endif

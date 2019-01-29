@@ -12,6 +12,8 @@
 
 #include "jraid-block-manager.h"
 
+#include <linux/crc32c.h>
+
 unsigned jd_bm_block_size(struct jd_block_manager *bm)
 {
 	return 0; 
@@ -32,4 +34,9 @@ int jd_bm_write_lock_zero(struct jd_block_manager *bm,
 			  struct jd_block **result)
 {
         return 0;
+}
+
+u32 jd_bm_checksum(const void *data, size_t len, u32 init_xor)
+{
+	return crc32c(~(u32) 0, data, len) ^ init_xor;
 }
