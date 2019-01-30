@@ -1,24 +1,98 @@
 
-         Basic implementation framework:
+                    Basic implementation framework:
+           
+                   +-------------------------------+
+                   |                               |
+                   |         userspace lbd         |
+                   |                               |
+                   +-------------------------------+
+                                   | ioctl 
+           ------------------------v------------------------
+                                   |
+                   +---------------v---------------+
+                   |         kernelspace lbd       |
+                   +-------------------------------+
+                                   |
+                   +---------------v---------------+
+                   |          jraid core           |
+                   +-------------------------------+
+                                   | 
+                 +-----------------v-----------------+
+                 |        pool0  pool1  pool2  ...   |
+                 +-----+ +-----+ +-----+ +-----+     |
+                 | dv0 | | dv1 | | dv2 | | dv3 | ... |
+                 +-----------------------------------+
 
-        +-------------------------------+
-        |                               |
-        |         userspace lbd         |
-        |                               |
-        +-------------------------------+
-                        | ioctl 
-------------------------v------------------------
-                        |
-        +---------------v---------------+
-        |         kernelspace lbd       |
-        +-------------------------------+
-                        |
-        +---------------v---------------+
-        |          jraid core           |
-        +-------------------------------+
-                        | 
-      +-----------------v-----------------+
-      |        pool0  pool1  pool2  ...   |
-      +-----+ +-----+ +-----+ +-----+     |
-      | dv0 | | dv1 | | dv2 | | dv3 | ... |
-      +-----------------------------------+
+
+userspace lbd as a local block device client tool, functions: create, remove ...
+
+1, code frameworks have basic training, we can add new features based on this.
+    just rough create, remove now.
+
+2, all logical deals over the ioctl, userspace and kernelspace are separated. 
+    maybe after both stereotypes, another considerations for bridge.
+
+3, userspace lbd refer to lvm2, ugly test to see the src dir: test, there are 
+    more details 
+
+kernelspace lbd as local block device client to access the storage.
+1, not sure to use this, the core reason is what i wanna to impletment is a local 
+    storage, not distributed. maybe it's necessary for a distributed cluster.
+
+2, this code and jraid core is separated, same as userspace lbd above.
+
+3, if needed, code style refer to ceph rbd.
+
+jraid core as the jsraid key logical deals.
+
+1, pool and lbd struct
+
+    all stratrgys are based on pool unit, so lbd created will attach specific 
+    attributes automaticly.
+
+    unit is pool, so there are pool_personlity. but only refer to linux-kernel 
+    raid5 now.
+
+    BTW, physical disks(SSD, SAS or SATA), each one has a disk_valume(dv[x]) struct 
+    in memery. they form a pool[x] and lbd[x] create based on this pool.
+
+2, thread model 
+
+    1), one pool thread and one or more lbd thread
+
+        all threads are high priority:
+        pool thread: charges for all exception of all lbds, such as bad secoter, 
+            which belongs to current pool (isolation domain: pool).
+
+        lbd thread: charges for lbd sync, sync deals (resycing,recovery,reshape ...) 
+            handle and report status.
+
+    2), one misc wq
+
+        block device misc handle, for all lbds belongs to current pool.
+
+    3), one pool wq
+
+        system make_request handle, such as flush queue.
+        and for data stripe handle.
+
+    4), optional mutiple workers
+
+        optional data stripe mutiple threads handle, improving performance. since 
+        normal external io (maybe from fs) deal with make_request is all right, 
+        while internal io (sync deals) based on lbd thread. in a word, optional 
+        mutiple workers for performance.
+
+3,  data stripe handle.
+
+    most complex part, refer to linux-kernel md and raid5. just like craid, the 
+    algorithms also very important!!
+
+4, metadata handle 
+
+    there are two types of metadata:
+        pool and lbd itself, not clear now.
+
+        blockinfo, charges for block mapper:
+            refer to linux-kernel device-mapper(driver/md/persistent-data), with 
+            btree manager style.
