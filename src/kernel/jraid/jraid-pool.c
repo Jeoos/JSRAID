@@ -10,13 +10,14 @@
  * GNU General Public License for more details.
  */
 
-#include <linux/spinlock.h>
-#include <linux/slab.h>
-
 #include "jraid-pool.h"
 #include "jraid-thread.h"
 #include "jraid-lbd.h"
 #include "jraid-io.h"
+#include "jraid-dv.h"
+
+#include <linux/spinlock.h>
+#include <linux/slab.h>
 
 #define MAX_STRIPE_BATCH	8
 
@@ -158,6 +159,7 @@ struct jraid_pool *sigle_pool_init(void)
         
         spin_lock_init(&jd_pool->lock);
         INIT_LIST_HEAD(&jd_pool->lbds);
+        INIT_LIST_HEAD(&jd_pool->dvs);
 
 	pconf = kzalloc(sizeof(struct pconf), GFP_KERNEL);
         if (NULL == pconf)

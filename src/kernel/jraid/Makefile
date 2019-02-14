@@ -11,7 +11,7 @@
 
 obj-m := jraid.o
 jraid-objs += jraid-main.o jraid-thread.o jraid-pool.o jraid-lbd.o \
-	jraid-io.o jraid-dv.o jraid-bufio.o \
+	jraid-io.o jraid-dv.o jraid-bufio.o jraid-sys.o \
 	persistent-data/jraid-btree.o \
 	persistent-data/jraid-btree-remove.o \
 	persistent-data/jraid-block-manager.o \

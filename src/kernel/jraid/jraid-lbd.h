@@ -27,6 +27,7 @@ struct local_block_device
 	struct pool_personality	 *pers;
 
         struct list_head  list;
+        struct list_head  dvs;
 	struct work_struct misc_work;	/* used for misc items */
 };
 

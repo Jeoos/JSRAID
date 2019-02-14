@@ -36,6 +36,7 @@ struct pool_personality
 struct jraid_pool {
         spinlock_t  lock;
 	struct list_head	lbds;
+	struct list_head	dvs;
 	char		        uuid[16];
         char        pool_name[MAX_POOL_NAME];
 

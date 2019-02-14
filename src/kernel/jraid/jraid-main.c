@@ -17,6 +17,7 @@
 #include "jraid-thread.h"
 #include "jraid-pool.h"
 #include "jraid-lbd.h"
+#include "jraid-sys.h"
 
 struct jraid_pool *jd_pool;
 struct local_block_device *lbd;
@@ -33,7 +34,9 @@ static int __init jraid_main_init(void)
 
         register_pool_personality(&jraid_personality);
 
-        /* FIXME: just for a sigle pool, one lbd now */
+        /* FIXME: just for a sigle pool (four dv), one lbd now */
+        jraid_sys_init();
+
         jd_pool = sigle_pool_init();
         if (!jd_pool) {
                 ret = EINVAL;
@@ -78,6 +81,7 @@ static void __exit jraid_main_exit(void)
 	        destroy_workqueue(jd_pool->pool_wq);
         kfree(jd_pool);
 
+        jraid_sys_exit();
         unregister_pool_personality(&jraid_personality);
 	destroy_workqueue(jraid_misc_wq);
 

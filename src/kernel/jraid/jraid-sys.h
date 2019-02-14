@@ -1,5 +1,5 @@
 /* 
- * jraid-dv.h
+ * jraid-sys.h
  *
  * Copyright(C)  2019
  * Contact: JeCortex@yahoo.com
@@ -10,19 +10,5 @@
  * GNU General Public License for more details.
  */
 
-#ifndef __JRAID_DV_H__ 
-#define __JRAID_DV_H__ 
-
-#include <linux/blkdev.h>
-
-#define MAX_NAME_LEN 56
-
-struct disk_volume
-{
-        sector_t sectors; /* device size */
-        struct block_device *bdev;
-        struct list_head list;
-        char filename[MAX_NAME_LEN]; /* filename */
-};
-
-#endif
+int jraid_sys_init(void);
+void jraid_sys_exit(void);
