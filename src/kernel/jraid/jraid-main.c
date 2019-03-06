@@ -20,7 +20,7 @@
 #include "jraid-sys.h"
 
 struct jraid_pool *jd_pool;
-struct local_block_device *lbd;
+//struct local_block_device *lbd;
 extern struct pool_personality jraid_personality;
 struct workqueue_struct *jraid_misc_wq;
 
@@ -42,7 +42,7 @@ static int __init jraid_main_init(void)
                 ret = EINVAL;
                 goto err_pool_init;
         }
-
+/*
         lbd = lbd_alloc();
         if (!lbd) {
                 ret = EINVAL;
@@ -52,16 +52,16 @@ static int __init jraid_main_init(void)
 	spin_lock(&jd_pool->lock);
 	list_add_tail(&lbd->list, &jd_pool->lbds);
 	spin_unlock(&jd_pool->lock);
-
+*/
         if (jd_pool->thread)
                 jraid_wakeup_thread(jd_pool->thread);
 
         return ret;
 
-err_lbd_init:
-        if (jd_pool->thread)
-	        jraid_unregister_thread(&jd_pool->thread, POOL_THREAD);
-        kfree(jd_pool);
+//err_lbd_init:
+//        if (jd_pool->thread)
+//	        jraid_unregister_thread(&jd_pool->thread, POOL_THREAD);
+//        kfree(jd_pool);
 err_pool_init:
         unregister_pool_personality(&jraid_personality);
 	destroy_workqueue(jraid_misc_wq);

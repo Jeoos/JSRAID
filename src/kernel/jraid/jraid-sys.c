@@ -13,17 +13,19 @@
 #include "jraid-sys.h"
 #include "jraid-dv.h"
 #include "jraid-pool.h"
+#include "jraid-lbd.h"
 
 #include <linux/blkdev.h>
 
 struct kobject *kobj_base;
+struct local_block_device *lbd;
 extern struct jraid_pool *jd_pool;
 
 static ssize_t
 add_store(struct kobject *kobj, struct kobj_attribute *attr,
                                 const char *page, size_t cnt)
 {
-        int total_num, jraid_num;
+        int total_num, jraid_num, ret;
         char filename[MAX_NAME_LEN];
         struct disk_volume *dv;
 
@@ -34,6 +36,8 @@ add_store(struct kobject *kobj, struct kobj_attribute *attr,
         sscanf(page, "%s %d %d",filename, &total_num, &jraid_num);
         strcpy(dv->filename, filename);
 
+        printk("total_num=%d jraid_num=%d\n", total_num, jraid_num);
+
         dv->bdev = blkdev_get_by_path(filename, FMODE_WRITE | FMODE_READ | FMODE_EXCL,
                                 dv);
         if (IS_ERR_OR_NULL(dv->bdev))
@@ -42,8 +46,20 @@ add_store(struct kobject *kobj, struct kobj_attribute *attr,
         printk("dv->sectors = %lu\n", dv->sectors);
 
         list_add_tail(&dv->list, &jd_pool->dvs);
+        
+        if (jraid_num == (total_num - 1)) {
+                lbd = lbd_alloc();
+                if (!lbd) {
+                        ret = EINVAL;
+                        goto err_alloc;
+                }
+	        spin_lock(&jd_pool->lock);
+	        list_add_tail(&lbd->list, &jd_pool->lbds);
+	        spin_unlock(&jd_pool->lock);
+        }
 
         return (ssize_t)cnt;
+err_alloc:
 err_bdev:
         kfree(dv);
         return -ENODEV;
@@ -59,8 +75,10 @@ del_store(struct kobject *kobj, struct kobj_attribute *attr,
         sscanf(page, "%s", filename);
 
         list_for_each_entry(dv, &jd_pool->dvs, list) {
-                if (!strcmp(dv->filename, filename))
+                if (!strcmp(dv->filename, filename)){
+                        list_del_init(&dv->list);
                         break;
+                }
         }
 
 	blkdev_put(dv->bdev, FMODE_READ | FMODE_WRITE | FMODE_EXCL);

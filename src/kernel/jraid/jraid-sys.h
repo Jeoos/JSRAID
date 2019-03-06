@@ -10,5 +10,10 @@
  * GNU General Public License for more details.
  */
 
+#ifndef __JRAID_SYS_H__
+#define __JRAID_SYS_H__
+
 int jraid_sys_init(void);
 void jraid_sys_exit(void);
+
+#endif
