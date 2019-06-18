@@ -78,7 +78,7 @@ static const struct block_device_operations lbd_blkdev_fops = {
 
 struct local_block_device *lbd_alloc(void)
 {
-        struct local_block_device *lbd;
+        //struct local_block_device *lbd;
         lbd = kmalloc(sizeof(struct local_block_device), GFP_KERNEL);
         if (!lbd) {
                 goto err_alloc_lbd;
@@ -128,6 +128,9 @@ err_alloc_lbd:
 
 void lbd_del()
 {
+        if (!lbd)
+                return;
+
         if (lbd->sync_thread)
 	        jraid_unregister_thread(&lbd->sync_thread, LBD_THREAD);
 
