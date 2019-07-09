@@ -20,6 +20,8 @@
 #include <linux/slab.h>
 
 #define MAX_STRIPE_BATCH	8
+#define LSTRIPE_SIZE    PAGE_SIZE
+#define LSTRIPE_SECTORS (LSTRIPE_SIZE>>9)
 
 LIST_HEAD(pers_list);
 DEFINE_SPINLOCK(pers_lock);
@@ -92,31 +94,31 @@ static int alloc_thread_groups(struct pconf *conf, int cnt,
 	return 0;
 }
 
-static void pool_wakeup_stripe_thread(struct stripe_head *sh)
+static void pool_wakeup_stripe_thread(struct lstripe_head *lsh)
 {
-	struct pconf *conf = sh->conf;
+	struct pconf *conf = lsh->conf;
         struct jraid_pool *jd_pool = conf->jd_pool;
 	struct pworker_group *group;
 	int thread_cnt;
-	int i, cpu = sh->cpu;
+	int i, cpu = lsh->cpu;
 
 	if (!cpu_online(cpu)) {
 		cpu = cpumask_any(cpu_online_mask);
-		sh->cpu = cpu;
+		lsh->cpu = cpu;
 	}
 
-	group = conf->worker_groups + cpu_to_node(sh->cpu);
+	group = conf->worker_groups + cpu_to_node(lsh->cpu);
 
 	group->workers[0].working = true;
 	/* at least one worker should run to avoid race */
-	queue_work_on(sh->cpu, jd_pool->lbds_wq, &group->workers[0].work);
+	queue_work_on(lsh->cpu, jd_pool->lbds_wq, &group->workers[0].work);
 
 	thread_cnt = group->stripes_cnt / MAX_STRIPE_BATCH - 1;
 	/* wakeup more workers */
 	for (i = 1; i < conf->worker_cnt_per_group && thread_cnt > 0; i++) {
 		if (group->workers[i].working == false) {
 			group->workers[i].working = true;
-			queue_work_on(sh->cpu, jd_pool->lbds_wq,
+			queue_work_on(lsh->cpu, jd_pool->lbds_wq,
 				      &group->workers[i].work);
 			thread_cnt--;
 		}
@@ -128,7 +130,7 @@ struct jraid_pool *sigle_pool_init(void)
         struct pconf *pconf;
 	int group_cnt, worker_cnt_per_group;
 	struct pworker_group *new_group;
-        struct stripe_head *sh;
+        struct lstripe_head *lsh;
 
         jd_pool = kzalloc(sizeof(struct jraid_pool), GFP_KERNEL);
         if (!jd_pool) {
@@ -168,9 +170,9 @@ struct jraid_pool *sigle_pool_init(void)
         pconf->jd_pool = jd_pool;
 
         /* for simple test */
-	sh = kzalloc(sizeof(struct stripe_head), GFP_KERNEL);
-        sh->conf = pconf;
-	sh->cpu = smp_processor_id();
+	lsh = kzalloc(sizeof(struct lstripe_head), GFP_KERNEL);
+        lsh->conf = pconf;
+	lsh->cpu = smp_processor_id();
 
         /* maybe sigle group, one worker(default) */
 	if (!alloc_thread_groups(pconf, 1, &group_cnt, &worker_cnt_per_group,
@@ -181,7 +183,7 @@ struct jraid_pool *sigle_pool_init(void)
         } else
                 goto err_groups;
 
-        pool_wakeup_stripe_thread(sh);
+        pool_wakeup_stripe_thread(lsh);
 
         return jd_pool;
 err_groups:
@@ -199,14 +201,92 @@ err_alloc_pool:
         return NULL;
 }
 
+static struct lstripe_head *alloc_lstripe(struct kmem_cache *lsc, gfp_t gfp)
+{
+	struct lstripe_head *lsh;
+
+	lsh = kmem_cache_zalloc(lsc, gfp);
+	if (lsh) {
+		spin_lock_init(&lsh->stripe_lock);
+		INIT_LIST_HEAD(&lsh->lru);
+		atomic_set(&lsh->count, 1);
+	}
+	return lsh;
+}
+
 static inline sector_t sync_request(struct local_block_device *lbd, sector_t sector_nr, int *skipped)
 {
         return 0;
 }
 
+sector_t jraid_compute_blocknr(struct lstripe_head *lsh, int i)
+{
+        return 0;
+}
+
+static void jraid_build_block(struct lstripe_head *lsh, int i)
+{
+	struct jddev *dev = &lsh->dev[i];
+
+	bio_init(&dev->req);
+	dev->req.bi_io_vec = &dev->vec;
+	dev->req.bi_max_vecs = 1;
+	dev->req.bi_private = lsh;
+
+	dev->flags = 0;
+	dev->sector = jraid_compute_blocknr(lsh, i);
+}
+
+static void init_lstripe(struct lstripe_head *lsh, sector_t sector)
+{
+        int i;
+        BUG_ON(atomic_read(&lsh->count) != 0);
+        lsh->sector = sector;
+
+        for (i = lsh->disks; i++; ) {
+                struct jddev *dev = &lsh->dev[i];
+                jraid_build_block(lsh, i);
+        }
+        lsh->cpu = smp_processor_id();
+}
+
 static void make_request(struct local_block_device *lbd, struct bio * bi)
 {
-       printk("in %s ...\n", __func__);
+        int rw = bio_data_dir(bi);
+	sector_t logical_sector, last_sector;
+        struct lstripe_head *lsh;
+        struct kmem_cache *lsc;
+
+        printk("in %s ...\n", __func__);
+	if (unlikely(bi->bi_rw & REQ_FLUSH)) {
+                /* FIXME: jraid_flush_request. */
+                return ;
+        }
+
+	if (unlikely(bi->bi_rw & REQ_DISCARD)) {
+                /* FIXME: make_discard_request. */
+                return ;
+        }
+
+        /* simple multi dv write by lbd stripe. */
+	lsc = kmem_cache_create("lstripe_head kmem_cache",
+			       sizeof(struct lstripe_head) + 2*sizeof(struct jddev),
+			       0, 0, NULL);
+	if (!lsc)
+		return ;
+
+        lsh = alloc_lstripe(lsc, GFP_KERNEL);
+
+        init_lstripe(lsh, logical_sector);
+
+	logical_sector = bi->bi_iter.bi_sector & ~((sector_t)LSTRIPE_SECTORS-1);
+	last_sector = bio_end_sector(bi);
+
+	for (;logical_sector < last_sector; logical_sector += LSTRIPE_SECTORS) {
+                printk("in %s logical_sector=%lu ...\n", __func__, logical_sector);
+        }
+
+        kmem_cache_free(lsc, lsh);
 }
 
 struct pool_personality jraid_personality =

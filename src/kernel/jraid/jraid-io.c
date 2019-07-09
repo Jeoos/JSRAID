@@ -27,13 +27,13 @@ blk_qc_t jraid_make_request(struct request_queue *q, struct bio *bi)
 
 	sectors = bio_sectors(bi);
 
+        lbd->pers->make_request(lbd, bi);
+
         /* added for iostat probe */
 	cpu = part_stat_lock();
 	part_stat_inc(cpu, &lbd->gendisk->part0, ios[rw]);
 	part_stat_add(cpu, &lbd->gendisk->part0, sectors[rw], sectors);
 	part_stat_unlock();
-
-        lbd->pers->make_request(lbd, bi);
 
         bio_endio(bi);
         return BLK_QC_T_NONE;
