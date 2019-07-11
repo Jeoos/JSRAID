@@ -43,9 +43,10 @@ add_store(struct kobject *kobj, struct kobj_attribute *attr,
         if (IS_ERR_OR_NULL(dv->bdev))
                 goto err_bdev;
         dv->sectors = get_capacity(dv->bdev->bd_disk);
-        printk("dv->sectors = %lu\n", dv->sectors);
+        dv->desc_nr = jraid_num;
+        printk("dv=%p dv->desc_nr = %u\n", dv, dv->desc_nr);
 
-        list_add_tail(&dv->list, &jd_pool->dvs);
+        list_add(&dv->plist, &jd_pool->dvs);
         
         if (jraid_num == (total_num - 1)) {
                 lbd = lbd_alloc();
@@ -53,9 +54,6 @@ add_store(struct kobject *kobj, struct kobj_attribute *attr,
                         ret = EINVAL;
                         goto err_alloc;
                 }
-	        spin_lock(&jd_pool->lock);
-	        list_add_tail(&lbd->list, &jd_pool->lbds);
-	        spin_unlock(&jd_pool->lock);
         }
 
         return (ssize_t)cnt;
@@ -74,9 +72,9 @@ del_store(struct kobject *kobj, struct kobj_attribute *attr,
 
         sscanf(page, "%s", filename);
 
-        list_for_each_entry(dv, &jd_pool->dvs, list) {
+        list_for_each_entry(dv, &jd_pool->dvs, plist) {
                 if (!strcmp(dv->filename, filename)){
-                        list_del_init(&dv->list);
+                        list_del_init(&dv->plist);
                         break;
                 }
         }

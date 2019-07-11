@@ -21,8 +21,14 @@ struct disk_volume
 {
         sector_t sectors; /* device size */
         struct block_device *bdev;
-        struct list_head list;
+        /* jd_pool dvs */
+        struct list_head plist;
+        /* lbd dvs */
+        struct list_head llist;
         char filename[MAX_NAME_LEN]; /* filename */
+        int desc_nr;
+        
+        struct bio *bio;
 };
 
 #endif

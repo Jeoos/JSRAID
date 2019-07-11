@@ -18,11 +18,13 @@
 #include "jraid-io.h"
 #include "jraid-pool.h"
 #include "jraid-thread.h"
+#include "jraid-dv.h"
 
 #define BLKDEV_DISKNAME "lbd0"
 #define BLKDEV_DEVICEMAJOR COMPAQ_SMART2_MAJOR
 #define BLKDEV_SECTORS (200*1024*1024)
 
+extern struct jraid_pool *jd_pool;
 extern struct local_block_device *lbd;
 extern struct workqueue_struct *jraid_misc_wq;
 
@@ -78,7 +80,7 @@ static const struct block_device_operations lbd_blkdev_fops = {
 
 struct local_block_device *lbd_alloc(void)
 {
-        //struct local_block_device *lbd;
+	struct disk_volume *dv;
         lbd = kmalloc(sizeof(struct local_block_device), GFP_KERNEL);
         if (!lbd) {
                 goto err_alloc_lbd;
@@ -96,6 +98,23 @@ struct local_block_device *lbd_alloc(void)
         if (!lbd->pers) {
                 goto err_find_pers;
         }
+
+        INIT_LIST_HEAD(&lbd->dvs);
+        spin_lock_init(&lbd->lock);
+
+	spin_lock(&jd_pool->lock);
+	list_add(&lbd->list, &jd_pool->lbds);
+
+        /* FIXME: certain_num dv needed, get from jd_pool */
+        int certain_num = 3;
+        list_for_each_entry(dv, &jd_pool->dvs, plist) {
+                if (dv->desc_nr > certain_num-1)
+                        break;
+	        spin_lock(&lbd->lock);
+                list_add(&dv->llist, &lbd->dvs);
+	        spin_unlock(&lbd->lock);
+        }
+	spin_unlock(&jd_pool->lock);
 
         blk_queue_make_request(lbd->queue, jraid_make_request);
 

@@ -25,6 +25,7 @@ struct local_block_device {
         struct jraid_thread *sync_thread;
 	struct pool_personality	 *pers;
 
+        spinlock_t lock;
         struct list_head  list;
         struct list_head  dvs;
 	struct work_struct misc_work;	/* used for misc items */

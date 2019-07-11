@@ -1,11 +1,12 @@
 # jraid - blah blah ...
 # inspired by lvm2(dm), ceph rbd and of course the kernel raid.
+# debug env baised on kernel 4.4.2
 
 # install
 autoconf
 ./configure
-make install
+make; make install
 
 # uninstall
 make uninstall
-make clean or make distclean
+make clean; make distclean
