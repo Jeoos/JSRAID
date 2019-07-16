@@ -80,7 +80,9 @@ static const struct block_device_operations lbd_blkdev_fops = {
 
 struct local_block_device *lbd_alloc(void)
 {
+        int i = 0;
 	struct disk_volume *dv;
+        sector_t blkdev_sectors;
         lbd = kmalloc(sizeof(struct local_block_device), GFP_KERNEL);
         if (!lbd) {
                 goto err_alloc_lbd;
@@ -110,9 +112,15 @@ struct local_block_device *lbd_alloc(void)
         list_for_each_entry(dv, &jd_pool->dvs, plist) {
                 if (dv->desc_nr > certain_num-1)
                         break;
+                if (0 == i)
+                        blkdev_sectors = dv->sectors;
+                else if (blkdev_sectors > dv->sectors)
+                        blkdev_sectors = dv->sectors;
+
 	        spin_lock(&lbd->lock);
                 list_add(&dv->llist, &lbd->dvs);
 	        spin_unlock(&lbd->lock);
+                i++;
         }
 	spin_unlock(&jd_pool->lock);
 
@@ -128,8 +136,10 @@ struct local_block_device *lbd_alloc(void)
         lbd->gendisk->first_minor = 0;
         lbd->gendisk->fops = &lbd_blkdev_fops;
         lbd->gendisk->queue = lbd->queue;
-
-        set_capacity(lbd->gendisk, BLKDEV_SECTORS);
+        
+        printk("dv->sectors = %lu blkdev_sectors=%lu\n", dv->sectors, blkdev_sectors);
+        //set_capacity(lbd->gendisk, BLKDEV_SECTORS);
+        set_capacity(lbd->gendisk, blkdev_sectors*3);
         blk_queue_flush(lbd->gendisk->queue, REQ_FLUSH | REQ_FUA);
         
         add_disk(lbd->gendisk);

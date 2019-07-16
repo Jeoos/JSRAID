@@ -330,7 +330,6 @@ int _submit_bio_wait(int rw, struct bio *bio)
 {
         struct submit_bio_ret ret;
 
-        printk("in[%s] ...\n", __func__);
         rw |= REQ_SYNC;
         init_completion(&ret.event);
         bio->bi_private = &ret;
@@ -353,12 +352,13 @@ int submit_readwrite(int rw, struct disk_volume *dv, struct page *page, sector_t
 	}
 	/* init bio */
 	bio->bi_bdev = dv->bdev;
-        printk("bio->bi_sector = %u\n", sector);
-	bio->bi_iter.bi_sector = (sector / PAGE_SECTORS)*PAGE_SECTORS;
-        /* FIXME: */
+        printk("dv->sectors=%u bio->bi_sector = %u\n", dv->sectors, sector);
+	//bio->bi_iter.bi_sector = (sector / PAGE_SECTORS)*PAGE_SECTORS;
+	bio->bi_iter.bi_sector = sector;
+        /* FIXME: multi device rw */
         if (bio->bi_iter.bi_sector >= dv->sectors) {
-                bio->bi_iter.bi_sector = 0;
-                goto out;
+                bio->bi_iter.bi_sector = 2048;
+                //goto out;
         }
 	bio->bi_private = dv;
 
@@ -367,25 +367,16 @@ int submit_readwrite(int rw, struct disk_volume *dv, struct page *page, sector_t
 		REQ_FAILFAST_DRIVER;
 
 	bio_add_page(bio, page, PAGE_SIZE, 0);
-
-	//bio->bi_end_io = io_end_bio;
-	//submit_bio(rw, bio);
+/*
+	bio->bi_end_io = io_end_bio;
+	submit_bio(rw, bio);
+*/
         
-        if (rw == WRITE) {
-                printk("WRITE ... \n");
-	        //ret = _submit_bio_wait(WRITE, bio);
-	        ret = submit_bio_wait(WRITE, bio);
-                if (ret)
-                        printk(KERN_ERR "failed to wait submit WRITE\n");
-        } else {
-                printk("READ ... \n");
-	        //ret = _submit_bio_wait(READ, bio);
-	        ret = submit_bio_wait(READ, bio);
-                if (ret)
-                        printk(KERN_ERR "failed to wait submit READ\n");
-        }
-
-out:
+	ret = _submit_bio_wait(rw, bio);
+	//ret = submit_bio_wait(rw, bio);
+        if (ret)
+                printk(KERN_ERR "failed to wait submit bio\n");
+//out:
         bio_put(bio);
 
 	return 0;
@@ -400,27 +391,28 @@ static int non_stripe_write(struct disk_volume *dv, struct page *page, unsigned 
         int nr,i,index;
 
         void *dst = NULL, *src = NULL;
+        struct page *tpage;
         src = page_address(page) + off;
         nr = (len > (PAGE_SIZE - offset)) ? 2 : 1;
 
 	for (i=0; i<nr; i++) {
-                page = alloc_page(GFP_KERNEL);
-                if (!page) {
+                tpage = alloc_page(GFP_KERNEL);
+                if (!tpage) {
                         printk(KERN_ERR "%s-%d: Cannot alloc page\n", __func__, __LINE__);
                         return -ENOMEM;
                 }
                 sectors = copy >> SECTOR_SHIFT;
                 src += i * (len-copy);
-                dst = page_address(page) + offset;
+                dst = page_address(tpage) + offset;
                 memcpy(dst, src, copy);
 
-                submit_readwrite(WRITE, dv, page, sector);
+                submit_readwrite(WRITE, dv, tpage, sector);
 
 		sector += sectors;
 		copy = len - copy;
 		offset = 0;
                 /* FIXME: async write, wait for io_end_bio */
-                __free_pages(page, 0);
+                __free_pages(tpage, 0);
         }
         return 0;
 }
@@ -432,28 +424,30 @@ static int non_stripe_read(struct disk_volume *dv, struct page *page, unsigned i
 	unsigned int copy = min_t(unsigned int, len, PAGE_SIZE - offset);
 	char sectors;
 	int nr, i;
+
 	void *dst = NULL, *src = NULL;
+        struct page *tpage;
 	dst = page_address(page) + off;
 	nr = (len > (PAGE_SIZE - offset)) ? 2 : 1;
 
         for(i = 0; i < nr; i++) {
-                page = alloc_page(GFP_KERNEL);
-                if (!page) {
+                tpage = alloc_page(GFP_KERNEL);
+                if (!tpage) {
                         printk(KERN_ERR "%s-%d: Cannot alloc page\n", __func__, __LINE__);
                         return -ENOMEM;
                 }
                 sectors = copy >>SECTOR_SHIFT;          
 		dst += i * (len-copy);
 
-	        src = page_address(page)+offset;
-                submit_readwrite(READ, dv, page, sector);
+	        src = page_address(tpage)+offset;
+                submit_readwrite(READ, dv, tpage, sector);
 
                 /* FIXME: async read, wait for io_end_bio */
 	        memcpy(dst, src, copy);
 		sector += sectors;
 		copy = len - copy;
 		offset = 0;
-                __free_pages(page, 0);
+                __free_pages(tpage, 0);
         }
         return 0;
 }
@@ -470,7 +464,7 @@ static int _make_request(struct local_block_device *lbd, struct bio* bi)
         sector_t sector = bi->bi_iter.bi_sector;
 
         list_for_each_entry(dv, &lbd->dvs, llist) {
-                printk("the dv desc_nr = %u\n", dv->desc_nr);
+                //printk("the dv desc_nr = %u\n", dv->desc_nr);
                 dv->bio = bi;
                 bio_for_each_segment(bvl, bi, iter) {
                         if(rw == WRITE)

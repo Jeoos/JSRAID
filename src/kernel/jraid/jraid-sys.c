@@ -44,7 +44,7 @@ add_store(struct kobject *kobj, struct kobj_attribute *attr,
                 goto err_bdev;
         dv->sectors = get_capacity(dv->bdev->bd_disk);
         dv->desc_nr = jraid_num;
-        printk("dv=%p dv->desc_nr = %u\n", dv, dv->desc_nr);
+        printk("dv->bdev=%p dv->sectors=%lu dv=%p dv->desc_nr = %u\n", dv->bdev, dv->sectors, dv, dv->desc_nr);
 
         list_add(&dv->plist, &jd_pool->dvs);
         
