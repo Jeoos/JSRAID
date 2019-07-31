@@ -320,7 +320,6 @@ struct submit_bio_ret {
 static void _submit_bio_wait_endio(struct bio *bio, int error)
 {
         struct submit_bio_ret *ret = bio->bi_private;
-        printk("in[%s] ...\n", __func__);
 
         ret->error = error;
         complete(&ret->event);
@@ -464,7 +463,6 @@ static int _make_request(struct local_block_device *lbd, struct bio* bi)
         sector_t sector = bi->bi_iter.bi_sector;
 
         list_for_each_entry(dv, &lbd->dvs, llist) {
-                //printk("the dv desc_nr = %u\n", dv->desc_nr);
                 dv->bio = bi;
                 bio_for_each_segment(bvl, bi, iter) {
                         if(rw == WRITE)
